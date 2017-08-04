@@ -1,9 +1,1 @@
-this is the first file to write
-it is just a beginning
-dev is working
-<<<<<<< HEAD
-master is working 
-=======
-master is working 
->>>>>>> feature1
-switch new branch
+本地仓库同步到远程仓库
