@@ -53,3 +53,14 @@ git branch --set-upstream branch-name origin/branchname
 * 没有冲突或冲突已经解决，git puash origin branchname
 
 参考连接： [https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000]()
+
+### vim编辑器
+vim -R file 查看文件只读
+
+esc 常用的命令
+
+:args 显示正在编辑的文件名称
+
+:wq 保存并退出
+
+:q!  强制退出
