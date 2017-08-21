@@ -147,3 +147,47 @@ instanceof\typeof替换
 2. web worker:模拟多线程，允许复杂计算功能的脚本在后台运行而不会阻碍其他的脚本的运行，适用于处理器
 占用量大而又不阻碍的情形，不能直接与dom交互，通过postMessage交互
 
+## 前端静态资源的缓存和更新问题解析
+浏览器缓存主要有两类
+缓存协商：last-midified,Etag
+彻底缓存：cache-control,Expires
+200状态：当浏览器本地没有缓存或者下一层失效时，或者用户点击了CTL+F5时，浏览器直接去服务器下载新的数据
+304状态：这一层是由last-modified/etag控制，当下一层失效时或者用户点击fresh，F5时，浏览器就会发送请求给服务器
+，如果服务器端没有变化，则返回304给浏览器
+200状态（from cache）：这一层由expires/cache-control控制；expires（http1.0版有效）是绝对时间；cache-control（http1.1版有效）
+相对时间，两者都存在的时候，cache-control覆盖expires，只要是没有失效，浏览器只访问自己的缓存
+1. last-modify
+在浏览器第一次请求某一个url的时候，服务器端返回的状态码会是200，内容是你请求的资源，同时有一个last-modified的属性标记（HttpResponse Header)
+此文件在服务器端最后被修改的时间，格式类似这样：
+Last-Modify：Tue,24 Feb 2009 08:01:04 GTM
+客户端在第二次请求此URL的时候，根据http协议规定，浏览器会像服务器传送If-Modify
+-Since报头（HttpRequestHeader),询问该时间之后文件是否有被修改过：
+If-Modify-Since:Tue,24 Feb 2009 08:01:04 GMT
+如果服务器端的资源没有变化，则自动返回HTTP304(NotChanged)状态码，内容为空，这样就节省了传输数据量。
+当服务器代码发生改变或者重启服务时，则重新发出资源，返回和第一次请求时类似。从而保证不向客户端重新
+发出资源，也保证服务器有变化时，客户端能够得到最新的资源
+注：如果If-Modified-Since的时间比服务器当前时间（当前的请求时间request_time）还晚，会认为是个非法请求
+2. Etag工作原理
+http协议规格说明定义ETag为“被请求变量的实体标记”。简单点即服务器响应时给请求URL标记，并在htpp请求头中
+将其传送到客户端，类似服务器端返回的格式：
+Etag:"ajfldajkfldajlf:3239"
+客户端的查询更新格式是这样的：
+If-None-Match: "jfjaklfjklajf:3239"
+如果ETag没有改变，则返回状态304
+注意：Etag在使用时候需要注意相同资源多台web服务器的Etag的一致性
+3. expires
+expires是用来控制请求文件的有效时间，一般是由服务器端设置的，如果带有expires
+则在expire过期前不会发生htpp请求，直接从缓存中读取，用户强制F5例外
+4. 区别
+last-modify和expires针对浏览器，而Etag与客户端无关，所以可以适合REST架构
+两者都应用在浏览器端的区别是：expires如期到达之前，浏览器不会发出新的请求
+，除非用户按浏览器的刷新，所以last-Modified和expires基本是降低浏览器向服务器
+发送的请求次数，而Etag更侧重于客户端与服务器之间的联系
+5. last-modify,Etag,Expire混合
+通常last-Modify,Etag,Expire是一起混合使用的，特别是last-Modify和Expire经常一起使用
+因为Expire可以让浏览器不发起http请求，而浏览器强制F5的时候又有Last-Modify,这样就很好
+的达到了浏览器端缓存的效果
+Etag和Expire一起使用的时候，先判断Expire，如果已经过期，再发起http请求，如果Etag也过期了
+，则返回200响应，如果没有过期则返回304响应
+三者同时使用，先判断Expire，然后发送http请求，服务器先判断last-modified,再判断Etag，
+必须都没有过期，才能返回304响应
