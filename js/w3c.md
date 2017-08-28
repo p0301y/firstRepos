@@ -148,6 +148,8 @@ instanceof\typeof替换
 占用量大而又不阻碍的情形，不能直接与dom交互，通过postMessage交互
 
 ## 前端静态资源的缓存和更新问题解析
+为什么是静态资源需要缓存？
+顾名思义，静态资源是静态的，一般不会改动
 浏览器缓存主要有两类
 缓存协商：last-midified,Etag
 彻底缓存：cache-control,Expires
@@ -191,3 +193,151 @@ Etag和Expire一起使用的时候，先判断Expire，如果已经过期，再�
 ，则返回200响应，如果没有过期则返回304响应
 三者同时使用，先判断Expire，然后发送http请求，服务器先判断last-modified,再判断Etag，
 必须都没有过期，才能返回304响应
+
+## http请求头常用的字段
+Accept: text/plain 设置接受的内容类型
+Accept-Charset: utf-8  设置接受的字符编码
+Accept-Encoding: gzip,deflate  设置接受的编码格式
+Accept-time/Accept-language...
+Authorization: Basic QWxhZGRJKLSJDFKLJSA==  设置http省份证的凭证
+Cache-Control: no-cache  设置缓存机制必须遵循的指令
+Connection: keep-alive
+Content-Length:348
+Date:....
+Forwarded:for=192.0.2.03;proto=http;by=203.0.113.43 披露客户端通过http代理连接web服务器的源信息
+Host：...
+Apgrade: HTTP/2.0,HTTPS/1.3,websocket 请求服务器端升级协议
+If-Match和If-Modify-Since  与缓存相关
+
+## js中的浅拷贝和深拷贝
+1. 对于字符串类型，浅复制就是对值的复制，对于对象来说，浅复制是对对象地址的复制，并没有
+开辟新的栈，也就是复制的结果是两个对象指向同一个地址，修改其中一个对象的属性，则另一个对象
+的属性也会改变，而深复制则是开辟新的栈，两个对象对应的地址不同，修改一个对象的属性，不会改变
+另一个对象的属性
+浅拷贝函数：
+```javascript
+function copy(obj){
+    var childs = {}
+    for(var key in obj){
+        childs[key] = obj[key]
+    }
+    return childs
+}
+```
+深拷贝函数：
+```javascript
+function deepCopy(obj){
+    var o
+    switch(typeof obj){
+        case 'undefined': break;
+        case 'string'   : o = obj + "";break;
+        case 'number'   : o = obj - 0;break;
+        case 'boolean'  : o = obj;break;
+        case 'object'   :
+            if(obj === null){
+                o = null
+            }else{
+                if(obj instanceof Array){
+                    o = []
+                    for(var i=0;len=obj.length;i++){
+                        o.push(deepCopy(obj[i]))
+                    }
+                }else{
+                    o = {}
+                    for(var k in obj){
+                        o[k] = deepCopy(obj[k])
+                    }
+                }
+            }
+            break;
+            default:
+                o = obj;break;
+    }
+    return o
+}
+```
+## float与position:absolute的区别
+float脱离文档流的时候，其他盒子会无视他，即和浮动盒子重叠，但是它的内容即文本会让出地方
+这也是float设计的初衷，让文本环绕图片；而position：absolute脱离文档流后，其他的盒子和文本
+都会无视
+## 面向对象及其特性
+面向对象仅仅是一个概念或者编程思想，不依赖某一个语言；就js而言，一切事务都是对象
+；对象就有封装和继承的特性；java是基于类的面向对象，js是基于原型的面向对象
+## BFC
+1. 定义
+块级格式上下文，也可以说是一个上下文对象，从上倒下，从左到右的基于盒子模型的流式布局
+2. 规则
+- 内部的box会在垂直方向，一个接一个的放置
+- 每个元素的margin box的左边，与包含块border box的左边向接触（从左向右的格式），即使浮动也是如此
+- box垂直方向的距离由margin决定，属于同一个BFC的两个相邻box的margin会发生重叠
+- BFC的区域不会与float box的内容区域重叠
+- BFC页面是一个独立的容器，里面的盒子不会影响到外面的元素
+- 计算BFC的高度时，浮动元素也参与计算
+3. 哪些元素会生成BFC?
+根元素、float属性不为none、position为absolute和fixed、display为（inline-block，table-cell，table-caption，flex，inline-flex）
+overflow不为visible的时候
+[参考链接]{http://www.cnblogs.com/lhb25/p/inside-block-formatting-ontext.html}
+
+## 单例模式
+在应用单例模式时，生成单例的类必须保证只有一个实例的存在，很多时候整个系统只需拥有一个全局对象，才有利于协调系统
+的整体行为，比如整个系统的配置文件中，配置数据有一个单例对象进行统一的读取和修改，其他对象需要配置数据的时候也统一通过该
+单例对象来获取配置数据，这样就可以简化复杂环境下的配置管理
+单例模式的思路：一个类能够返回一个对象的引用（并且永远是同一个）和一个获得该实例的方法（静态方法，通常交getInstance名称），
+那么当我们调用这个方法的时候，如果类持有的引用不为空就返回该引用，否则就创建该类的实例，并且将实例引用赋值给该类保持的那个引用再返回
+同时将该类的构造函数定义为私有方法，避免其他函数来使用构造函数实例化对象，只通过该类的静态方法来得到唯一的实例
+```javascript
+//最好的实现方法：使用闭包来私有化数据，通过single.getInstance()来获取单例
+var single = (function(){
+    var unique;
+    function getInstance(){
+        if(unique === undefined){
+            unique = new Construct()
+        }
+        return unique
+    }
+
+    function Construct(){
+        //生成单例的构造函数的代码
+    }
+
+    return {
+        getInstance:getInstance
+    }
+})()
+//实现方法一：最简单的对象字面量,缺点是没有封装
+var single = {
+    attr: 1,
+    method: function(){
+        return this.attr
+    }
+}
+var t1 = singleton
+var t2 = singleton
+t1 === t2  //true
+//实现方法二：构造函数的内部判断
+function Construct(){
+    //确保只有单例
+    if(Construct.unique !== undefined){
+        return Construct.unique
+    }
+    this.name = "name"
+    this.age = 24
+    Construct.unique = this
+}
+var t1 = new Construct()
+var t2 = new Construct()
+t1 === t2 //true
+```
+
+## 常见的http状态码
+有关缓存：第一次访问200，第二次访问(cache),按F5刷新304，按ctrl+F5强制刷新200
+301，302的区别：(重定向需要结合http响应头中的location字段)
+301重定向是永久的重定向，搜索引擎在抓去新的内容的时候也将旧的网址替换为重定向之后的网址；
+302重定向是临时的重定向，搜索引擎会抓去新的内容而保留旧的网址，因为服务器返回的是302，所以搜索引擎认为这只是暂时的，所以会保留旧的网址
+400：错误请求，服务器不理解请求的语法
+401：未授权，请求身份验证，对于登录后的请求的网页，服务器可能返回此响应；
+403：禁止，服务器拒绝请求
+404：未找到，服务器找不到请求的资源
+500：服务器遇到错误，无法完成请求
+502：错误网关，服务器作为网管或代理，从上游服务器收到无效响应
+503：服务不可用，服务器目前无法使用（由于超载或停机维护）,通常这只是暂存状态
