@@ -18,6 +18,9 @@ null是一个表示无的对象，转化为数值时为0；undefined是一个表
 4. js延时加载的方式有哪些？
 script的defer和async、动态创建dom（创建script，插入到dom中，加载完毕后callback）
 按需异步加载js(requirejs\webpack)
+
+![](../image/1.png)
+
 5. 如何删除cookie？
 设置cookie过期即可
 6. 实现一个函数clone，可以对javascript的5种主要的数据类型（包括Number、String、Object
