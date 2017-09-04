@@ -50,6 +50,22 @@ width/height/device-width/device-height/orientation/color/aspect-ratio/device-as
 - bootstrap的栅格布局
 - flex的弹性盒子模型
 
+## 响应式的图片
+1. 最常用的矢量图；矢量图是图形，通过数学公式画出来的，放大和缩小不失真；图像一般是拍摄出来的，缩放比例不是100%，从某种程度上是失真
+2. img标签，图片随着容器自动放缩，保持宽高比，max-width:100%;
+3. 背景图片，background-size:contain【没有裁切】,background-size:cover【可能有裁切】
+4. 设置固定的高宽比，有利于适应不同的屏幕，如轮播图组，可以通过padding和margin的放缩，建议使用百分比【相对于父容器的width】
+```css
+.test{
+    height:0;
+    padding-top:50%;
+    background: red;
+}
+```
+
+## 响应式布局的字体
+rem
+
 ## html5的API
 1. 语义化
 - html5的节段和提纲：section,article,nav,header,footer,aside,hgroup,figure标签
