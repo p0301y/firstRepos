@@ -341,3 +341,105 @@ t1 === t2 //true
 500：服务器遇到错误，无法完成请求
 502：错误网关，服务器作为网管或代理，从上游服务器收到无效响应
 503：服务不可用，服务器目前无法使用（由于超载或停机维护）,通常这只是暂存状态
+
+## css兼容性
+1. 了解浏览器的兼容情况(css查询)：
+- caniuse.com
+- MDN CSS Reference
+- Codrops CSS Reference
+- QuirksMode.org CSS
+
+2. 方案
+- 如果低版本浏览器没有这个特性可以接受吗？
+    - border-radius不支持时，没有圆角
+    - box-shadow不支持时，没有阴影
+- 可以使用效果稍微差一些的替代方案吗？
+    - min-height: 100vh,用min-height: 800px
+- 可以使用一些替代方案吗？
+    - opacity: 0.5在IE下使用filter: alpha(opacity=50)
+- 可以使用javascript让浏览器支持吗？
+    - 使用html5shim.js让IE6 - 8支持html5新标签
+    - 使用DD_belatedPNG.js让IE6支持半透明png图片
+- 更换实现方式
+    - 布局
+    - 例如圆角使用图片代替
+
+3. 不同浏览器使用不同的样式
+- @supports：查询是否支持，类似与media
+- 层叠
+- 条件注释
+- 浏览器怪癖
+```
+//@supports
+.container{
+    display: flex;
+}
+@supports(display: grid){
+    .container{
+        display: grid;
+        grid-template: repeat(4, 1rf) / 59px 100px;
+    }
+}
+//层叠样式
+div{
+    display: table;
+    display: flex;
+}
+//条件注释
+<!-- [if IE 7 ]>
+    <p>只有Ie7能够看见我</p>
+<![endif]>
+//浏览器怪癖
+ie6不支持两个类选择器直接组合
+.unused-class.selector{
+
+}
+.container{
+    height: 100px;
+    /*只有ie6会忽略_，所以ie下会显示200px*/
+    _height: 200px;
+}
+.container{
+    height: 100px;
+    /* ie7支持* */
+    *height: 200px;
+}
+iie6 - 8不支持:root选择器
+:root .selector{
+    /* ie6-8 style */
+}
+.selector{
+    color: #fff;
+    /* ie6 - 8会忽略\9 */
+    color: #fff\9;
+}
+
+//同时适配ie
+.tip{
+    background: blue;
+    background: red\9;
+    *background: black;
+    _background: orange;
+}
+/*
+    ie8不支持
+    background-size(ie8下使用固定宽度布局)
+    border-radius
+    box-shadow
+    opacity(filter:alpha(opacity=50))
+    rgba\hls\hlsa(一般情况下使用相近的不透明色代替)
+    rem/vh/vw/calc(降级为固定宽度)
+    media query(引入respond.js)
+*/
+/*
+    ie9不支持
+    transition与animation（可以使用javascript）
+*/
+/*
+    控制ie模式
+    meta标签控制进入哪种文档模式
+    <meta http-equiv="X-UA-Compatible" content="IE=7">//使用ie7渲染
+    <meta http-eqiuv="v-ua-compatible" content="IE=edge">//使用最新引擎
+*/
+```
+

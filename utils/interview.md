@@ -37,3 +37,9 @@ Object.prototype.clone = function(){
 7. <strong>,<em>,<b>,<i>标签
 strong和em是表达要素(phrase elements),都是用于强调文本，但是strong的强调程度更强一些
 b和i是视觉要素，分别表示无意义的加粗和斜体
+8. font阻塞内容渲染（@font-face）
+- 浏览器为了避免FOUT(Flash of unstyle text),会尽量等待字体加载完成之后，再显示应用了该字体的
+内容
+- 只有当字体超过一段时间仍未加载成功时。浏览器才会降级使用系统的字体。每个浏览器都规定了自己
+的超时时间
+- 但是这也带来了FOIT(flash of invisible text)问题，类容无法尽快地被展示，导致空白

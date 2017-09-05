@@ -76,6 +76,23 @@ rem
 3. 离线存储
 - indexDB,浏览器端的数据库，存储大量结构化数据，并且能够在这些数据上使用索引进行高性能检索
 - localStorage，键值对存储数据，js操作进行操作和销毁的对象
+- sessionStorage,也是键值对存储的方式，针对一个seesion的数据存储（关闭窗口，存数数据清空）
+```javascript
+//用户在一个列表页浏览时，点击一个列表进入详情，返回要求记录用户刚刚浏览过的位置，而不是重
+新刷新页面回到了页面顶部：页面滚动---将滚动的位置存储到sessionStorage中---再次进入到页面中，到seesion
+中取出上次保存的浏览位置---滚动到对应位置
+//滚动时保存滚动的位置
+$(window).scroll(function(){
+    if($(document).scrollTop() != 0){
+        sessionStorage.setItem("offsetTop",$(window).scrollTop())
+    }
+})
+//onload的时候，取出并滚动到上次保存的位置
+window.onload = function(){
+    var _offset = sessionStorage.getItem("offsetTop")
+    $(document).scrollTop(offsetTop)
+}
+```
 4. 多媒体
 - audio和video
 5. 图像和3D
