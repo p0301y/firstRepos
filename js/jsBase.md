@@ -116,3 +116,155 @@ window.onload = function(){
 - 最基本的节点类型是Node,用于抽象的表示文档中一个独立的部分；所有其他类型都是继承自Node
 - document类型表示整个文档，是一组分层节点的根节点，在javascript中，document对象是Document的一个实例
 - element节点表示文档中所有html和xml元素，可以用来操作这些元素的类容和特性
+
+## js对象中的属性
+js中的对象定义三种类型的属性：私有属性、实例属性、类属性，私有属性只能在对象内部使用，实例属性必须通过对象的
+实例进行引用，而类属性可以直接通过类名进行引用。属性的创建、读取、遍历、检测
+1. js中属性的定义
+- 属性名称可以包含英文字母、数字（不能开头）、特殊符号（-、_、$等）
+- 若属性名称包含-（横杠），属性访问方式只能采用"[]"中括号访问
+```
+var obj = {
+    x: 1,
+    "-y": 2
+}
+console.log(obj['-y'])
+```
+2. 属性的分类
+- 私有属性：私有属性只能在构造函数内部定义与使用,有点局部变量的意思
+```
+function User(age){
+    this.age = age
+    var isChild = age < 12
+    this.isLittleChild = isChild
+}
+
+var user = new User(15)
+alert(user.isLittleChild) //正确的方式
+alert(user.isChild)  //报错，对象不支持此属性或者方法
+```
+- 实例属性：prototype方式，格式functionName.prototype.propertyName = value;
+this方式，格式：this.propertyName = value
+```
+function User(){}
+User.prototype.name = "user1"
+User.prototype.age = 18
+var user = new User()
+alert(user.age)
+
+function User(name,age){
+    this.name = name
+    this.age = age
+}
+var user = new User("afda",12)
+alert(user.age)
+```
+- 类属性：functionName.propertyName = value
+```
+function User(){}
+User.MAX_AGE = 200
+User.MIN_AGE = 0
+alert(User.MAX_AGE)
+```
+总结：只有实例属性才可以被继承，但是继承不会改变原型上的属性值
+3. 属性的访问方式
+- "."访问方式，属性名必须是一个标识符（静态字符串），不能为变量
+```
+var obj = {}
+obj.x = 1
+```
+- '[]'中括号的方式，属性名可以是一个静态字符串，也可以是一个变量
+```
+var obj = {
+    x: 1,
+    y: 2
+}
+var a = "y"
+console.log(obj[a]) //2
+```
+4. 对象的属性删除
+语法： delete obj.propertyName 或者 delete obj[propertyName]
+说明：delete只能删除对象的自有属性，不能删除继承属性
+5. 属性检测
+- in运算符
+```
+function People(name){
+    this.name = name
+}
+
+function Student(age){
+    this.age = age
+}
+
+Student.prototype = new People()
+var s = new Student(20)
+
+console.log('age' in s) //true:age为实例属性
+console.log('name' in s) //true：name为继承属性
+```
+- obj.hasOwnProperty(propertyName):判断对象是否拥有一个指定名称的实例属性
+```
+var Student = function (name){
+    this.name = name
+}
+Student.prototype.sayHello = function (){
+    alert(this.name)
+}
+Student.prototype.age = ''
+var st = new Student("ahnsjfhds")
+console.log(st.hasOwnProperty('name')) //true
+console.log(st.hasOwnProperty('sayHello')) //false：原型上的方法
+console.log(st.hasOwnProperty('age')) //false：原型上的属性
+```
+- obj.propertyIsEnumerable(propertyName): 判断指定属性是否是实例属性并且可以枚举的
+```
+var obj = Object.create({},{
+    name: {
+        value: 'tom',
+        enumerable: true
+    },
+    age: {
+        value: 22,
+        enumerable: false
+    }
+})
+
+console.log(obj.propertyIsEnumerable('name')) //true
+console.log(obj.propertyIsEnumerable('age')) //false
+
+console.log(obj.hasOwnProperty('age'))  //true
+```
+6. 属性遍历
+- for in
+```
+var po = {px: 2}
+var o = {x: 3}
+o.__proto__ = po
+for(var p in o){
+    console.log(p) //px,x
+}
+```
+- Object.keys(obj):返回数组，包含对象可枚举的实例属性名称
+```
+var op = {px: 2}
+var o = {x: 3}
+o.__proto__ = op
+var arr = Object.keys(o) // [x]
+```
+- Object.getOwnPropertyNames(obj): 返回数组，包含对象的所有实例属性名称，包括枚举和不可枚举的
+```
+var op = {px: 2}
+var o = {x: 3,y: 4}
+o.__proto__ = op
+Object.defineProperties(o,{
+    x:{
+        enumerable: true
+    },
+    y:{
+        enumrable: false
+    }
+})
+var arr1 = Object.keys(o) // [x]
+var arr2 = Object.getOwnPropertyNames(o) //[x,y]
+```
+
