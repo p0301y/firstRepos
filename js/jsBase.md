@@ -268,3 +268,6 @@ var arr1 = Object.keys(o) // [x]
 var arr2 = Object.getOwnPropertyNames(o) //[x,y]
 ```
 
+## css中的动画vs过度
+1. 过度transition: 过度是从一个状态到另一个状态，需要事件触发这个状态的变化，对应的属性指的是固有属性，如宽高、透明度等
+2. 动画animation: 动画是在一个声明中设置多个状态，例如在百分之多少的时候，重点是结合@keyframes自定义属性，完成比较复杂的动画
