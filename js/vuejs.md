@@ -141,5 +141,34 @@ dom，使用document.CreateElement和document.CreateTextNode创建的就是真�
     ```
 比较两颗虚拟dom树的差异(old virtual DOM 和 new virtual DOM)使用diff算法对真实dom最小修改
 
+## mvc到mvvm
+1. mvc
+    - view ui 布局，展示数据
+    - Model 管理数据
+    - Controller 响应用户操作，并将Model更新到view上
 
+    随着h5的发展，人们更希望使用h5开发的应用能和Native媲美，或者接近与原生App的体验效果，于是前端应用的复杂程度已不同往日，此时前端开发就暴露出了三个痛点：
+    开发者在代码中大量调用相同的DOM API，处理繁琐操作冗余，使得代码难以维护；大量的dom操作使得页面渲染性能降低，加载速度减慢，影响用户体验；当Model频繁发生
+    变化，开发者需要手动更新到View，当用户的操作导致Model发生变化，开发者同样需要将变化的数据同步到Model中，这样工作很繁杂。
+    其实，jquery的出现就是为了前端更加简洁的操作dom，同时封装了对不同浏览器的兼容性写法
+2. MVVM
+    - model 数据模型
+    - view 视图模型
+    - viewModel 同步view和model的对象
+    在mvvm架构下，view和model之间并没有直接的联系，而是通过viewModel进行交互，model和viewModel之间的交互是双向的，因此view数据变化会同步到model，而model数据的变化
+    也会立刻反映到view上；viewModel通过双向数据绑定把view层和model层连接起来，而view和model之间的同步工作是自动完成的，因此开发者关注业务逻辑，不需要动手操作dom，
+    不需要关注数据状态的同步问题，复杂的数据状态维护完全有mvvm来统一管理
+    ![](../image/3.png)
+    vue.js是采用object.defineProperty的getter和setter并结合观察者模式来实现数据绑定。把一个普通javascript对象传给Vue实例来作为它的data选项时，vue将遍历它的属性，
+    用Object.defineProperty将它们转化为setter\getter，用户看不到getter和setter，但是在内部它们让vue追踪依赖，在属性被访问和修改时通知变化，具体分析如下：
+        - observer数据监听器，能够对数据对象的所有属性进行监听，如果有变动就可以拿到最新值并通知订阅者，内部采用object.defineProperty的setter和getter来实现
+        - compile指令解析器，它的作用是对每个元素节点的指令进行扫描和解析，根据指令模版替换数据，以及绑定相应的更新函数
+        - watcher订阅者，作为连接observer和compile的桥梁，能够订阅并收到每个属性变动的通知，执行指令绑定的相应的回调函数
+        - dep消息订阅器（主题对象），内部维护一个数组，用来收集watcher订阅者，数据变动触发notify函数，再遍历订阅者并且触发订阅者的update方法
+
+        从上图可以看出，当执行new Vue()时，vue进入初始化阶段，一方面vue会遍历data选项中的属性，并用object.defineProperty将他们转化为setter\getter,
+        实现数据变化监听功能，另一方面，vue的指令编译器compile对元素节点的指令进行扫描和解析；初始化视图，并订阅watcher来更新视图，此时watcher会将自己添加到消
+        息订阅器dep中，初始化完毕；
+        当数据发生变化时，observer中的setter方法被触发，setter会立即调用dep.notify()，dep开始遍历所有的订阅者，并且调用订阅者的update方法，订阅者收到通知后会进行相应的
+        更新
 

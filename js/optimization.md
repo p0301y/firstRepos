@@ -53,3 +53,82 @@ link标签的media属性
 <link rel = "stylesheet" href = "css.css" media = "none" onload = "if(media != 'all') media = 'all'">
 ```
 
+## webpack工具实现的前端优化
+1. 提取文件的公共部分
+```
+entry: {
+    topic: "./src/components/.../topic.js",
+    activity: "./src/.../activity.js",
+    react: ['react'],
+    jquery: ["jquery"]
+},
+plugins: [
+    new CommonChunkPlugin({
+        name: ['jquery','react'], //将公共模块提取
+        minChunks: Infinity //提取所有entry的公共依赖
+    })
+]
+```
+2. 压缩代码
+```
+new webpack.optimize.UglifyJsPlugin({
+    compress: {
+        warning: false
+    }
+})
+```
+3. 同步加载和异步加载
+webpack中同步的代码会被合并并且打包在一起，异步加载的代码会被分片成一个chunk，在需要该模块的时候再加载，即按需加载；这个度要开发者自己把握，同步加载过多
+代码会造成文件过大，影响加载速度；异步则文件太碎，造成过多的http请求，同样会影响加载速度
+- 同步加载的写法
+```
+var topicItem = require("../topic/topicitem")
+```
+- 异步的写法
+```
+require.ensure([],function(){
+    dialog = require("../../widget/dialog")
+    $ = require("jquery")
+    io = require("../../utils/io")
+})
+```
+首屏同步加载，首屏过后异步加载
+4. 缓存控制
+缓存要做两件事：
+- 对于没有修改的文件，从缓存中获取文件
+- 对于以缓存的文件，不要从缓存中获取
+解决方案：
+- 不处理，等待用户浏览器缓存过期，自动更新，这是最偷懒的，命中率低一些，同时出现文件没有更新；
+- http头对文件设置很大的max-age，同时给每个文件名上带有该文件的版本号，例如把文件的hash值作为版本号；当文件没有更新时，使用缓存的文件自然不会出错，
+当文件已经更新时，其hash值必然改变，此时文件改变了，自然不存在此文件的缓存，于是浏览器回去加载最新的文件
+webpack是可以轻松做到的，只需要给文件名配置[chunkhash:8]即可，其中8表示的是hash的长度为8，默认是16
+```
+output: {
+    path: __dirname + "/release/",
+    filename: "[chunkhash:8].[name].js",
+    chunkFilename: "[name].[chunkhash:8].js"
+}
+```
+浏览器给这种缓存方式的缓存容量太少了，只有12Mb，且部分host；所以更加极致的做法是用localStorage，以文件名为key，文件内容为value，虽然缓存容量也只有5Mb，但是每个host是独享这5Mb的
+5. 自动生成页面
+文件带上版本号后，每一次文件变化后，都需要手动修改引用的文件名，这种重复的工作可以使用htmlWebpackPlugin和
+ExtractTextPlugin插件
+- 生成带js的页面
+```
+new HtmlWebpackPlugin({
+    filename: "topic2.html",
+    template: __dirname + "src/app.html",
+    inject: true,
+    chunks: ['react','jquery',"topic"],
+    //排序
+    chunkSortMode: function(a,b){
+        var index = {'topic':1,'react':3,'jquery':2},
+        var aI = index[a.origin[0].name]
+        var bI = index[b.origin[0].name]
+        return aI&&bI?bI - aI : -1
+    }
+})
+```
+生成带css的页面
+```
+new ExtractTextPlugin("comm.[contenthash:9].css")
