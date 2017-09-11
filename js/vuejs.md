@@ -172,3 +172,151 @@ dom，使用document.CreateElement和document.CreateTextNode创建的就是真�
         当数据发生变化时，observer中的setter方法被触发，setter会立即调用dep.notify()，dep开始遍历所有的订阅者，并且调用订阅者的update方法，订阅者收到通知后会进行相应的
         更新
 
+## vue双向绑定的简单实现
+需要从三个方面去实现
+- 输入框以及文本节点与data中的数据绑定（需要对dom进行编译：DocumentFragment）
+- 输入框内容变化时，data中的数据同步变化，即view => model的变化
+- data中的数据变化时，文本节点的内容同步变化，即model => view的变化
+说明：订阅发布模式：发布者发出通知；主题对象收到通知并推送给订阅者；订阅者执行相应的操作
+```html
+<div id="app">
+    <input type="text" v-model="text">
+    {{ text }}
+</div>
+<script>
+    var vm = new Vue({
+        el: "app",
+        data: {
+            text: 'hello world'
+        }
+    })
+</script>
+```
+```javascript
+//数据初始化绑定,挟持dom绑定
+function compile(node,vm){
+    var reg = /\{\{(.*)\}\}/
+    //节点类型为元素
+    if(node.nodeType === 1){
+        var attr = node.attributes
+        //解析属性
+        for(var i=0;i<attr.length;i++){
+            if(attr[i].nodeName == 'v-model'){
+                var name = attr[i].nodeValue  //获取v-model绑定的属性名
+                //添加事件view => model
+                node.addEventListener('input',function(e){
+                    vm[name] = e.target.value
+                })
+                node.value = vm.data[name] //将data的值赋值给node
+                node.removeAttribute('v-model')
+            }
+        }
+    }
+    //节点类型为text
+    if(node.nodeType === 3){
+        if(reg.test(node.nodeValue)){
+            var name = RegExp.$1 //获取匹配的字符串
+            name = name.trim()
+            node.nodeValue = vm.data[name] //将data的值赋值给node
+        }
+    }
+}
+function nodeToFragment(node,vm){
+    var flag = document.createDocumentFragment()
+    var child
+    while(child = node.firstChild){
+        compile(child,vm)
+        flag.appendChild(child) //将节点劫持到文本片段中
+    }
+
+    return flag
+}
+
+//响应式数据绑定
+function defineReactive(obj,key,val){
+    var dep = new Dep()
+    Object.defineProperty(obj,key,{
+        get: function(){
+            //添加订阅者watcher到主题对性爱那个dep
+            if(Dep.target) dep.addSub(Dep.target)
+            return val
+        },
+        set: function(newVal){
+            if(newVal == val) return
+            val = newVal
+            //作为发布者通知
+            dep.notify()
+        }
+    })
+}
+
+
+function init(obj,vm){
+    Object.keys(obj).forEach(function (key){
+        defineReactive(vm,key,obj[key])
+    })
+}
+
+//观察者,在html编译过程中，每个与data关联的节点生成一个watcher
+function Watcher(vm,node,name){
+    Dep.target = this
+    this.name = name
+    this.node = node
+    this.vm = vm
+    this.update()
+    Dep.target = null
+}
+Watcher.prototype = {
+    constructor: Watcher,
+    update: function(){
+        this.get()
+        this.node.nodeValue = this.value
+    },
+    get: function(){
+        this.value = this.vm[this.name]
+    }
+}
+
+//主题对象
+function Dep(){
+    this.subs = []
+}
+Dep.prototype = {
+    construcotr: Dep,
+    addSub: function(sub){
+        this,subs.push(sub)
+    },
+    notify: function(){
+        this.subs.forEach(function(sub){
+            sub.update()
+        })
+    }
+}
+
+
+//vue对象
+function vue(options){
+    this.data = options.data
+    var data = this.data
+
+    //初始化数据将数据转化成setter/getter
+    init(data,this)
+
+    var id = options.el
+    var dom = nodeToFragment(document.getElementById(id),this)
+    //编译完成后，将dom返回到app中
+    document.getElementById(id).appendChild(dom)
+}
+
+var vm = new Vue({
+    el: 'app',
+    data: {
+        text: 'hello world'
+    }
+})
+```
+
+
+
+
+
