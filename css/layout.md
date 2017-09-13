@@ -80,6 +80,9 @@
 }
 ```
 注意设置为flex布局之后，子元素的float、clear、vertical-align属性将失效
+父元素display: flex之后成为伸缩容器，子元素（除了position: absolute和fixed）
+无论是display:block或者display: inline都将称为伸缩项目；伸缩项目之间，没有inline-block
+元素之间的空隙；伸缩项目自动box-sizing:border-box;
 1. 采用flex布局的元素称为flex容器(flex container),简称“容器”。他的所有
 子元素自动成为容器成员，称为flex项目(flex item),简称项目
 2. 容器的属性

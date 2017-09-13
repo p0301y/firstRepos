@@ -316,6 +316,77 @@ var vm = new Vue({
 })
 ```
 
+## vue组件按需引用，vue-router懒加载，vue打包优化，加载动画
+结合vue的异步组件和webpack的code splitting feature,轻松实现路由组件的懒加载
+- 把路由对应的组件对应成异步组件
+```
+const Foo = resolve => {
+    require.ensure(['./Foo.vue'],() => {
+        resolve(require('./Foo.vue'))
+    })
+}
+//另一种AMD分隔的require
+const Foo = resolve => require(['./Foo.vue'],resolve)
+//不需要任何改变路由配置，跟之前一样使用Foo
+const router = new VueRouter({
+    routes: [
+        {path: '/foo',component: Foo}
+    ]
+})
+
+//另一种写法
+const router = new Router({
+    routes: [
+        {
+            path: "/foo",
+            name: 'foo',
+            component(resolve){
+                require.ensure(['./components/foo.vue'],() => {
+                    resolve(require('./components/foo.vue'))
+                })
+            }
+        }
+    ]
+})
+```
+- 把组件按组分块：有时候我们想把某个路由下的所有组件都打包在同个异步chunk中，只需要给chunk命名，提供require.ensure第三个参数作为chunk的名称
+```
+const Foo = r => require.ensure([],() => r(require('./Foo.vue')),'group-foo')
+const Bar = r => require.ensure([],() => r(require('./Bar.vue')),'group-foo')
+const Baz = r => require.ensure([],() => r(require('./Baz.vue')),'group-foo')
+```
+webpack将相同chunk下的所有异步模块打包到一个异步模块里面----这也意味着我们无需明确列出require.ensure的依赖（传空数组就行）
+如果想在组件加载的时候可以有loading提示也同样很简单，这里以mint-ui为例（vue的前端组件库）
+```
+//npm i mint-ui -s
+import { indicator } from 'mint-ui'
+const Foo = resolve => {
+    Indicator.open()
+    require.ensure(['./Foo.vue'],() => {
+        resolve(require('./Foo.vue'))
+        indicator.close()
+    })
+}
+//这样就可以实现组件在异步加载的时候显示loading
+```
+ [参考连接：]{http://www.cnblogs.com/coolslider/p/7074609.html}
+
+## vue动画
+vue在插入、更新或者移除dom时，提供多种不同方式的应用过度效果
+包括以下工具：
+    - 在css过度和动画中自动应用class
+    - 可以配合使用第三方css动画库，如Animate.css
+    - 在过度钩子函数中使用javascript直接操作dom
+    - 可以配合使用第三方javascript动画库，如Velocity.js
+1. 单元素/组件的过度
+vue提供了transition的封装组件，在下列情形中，可以给任何元素和组件添加entering/leaving过度
+    - 条件渲染（使用v-if）
+    - 条件展示（使用v-show）
+    - 动态组件
+    - 组件根节点
+[不明白就看：]{http://www.jb51.net/article/108616.htm}
+[官方连接：]{https://vuefe.cn/v2/guide/transitions.html}
+
 
 
 
