@@ -271,3 +271,124 @@ var arr2 = Object.getOwnPropertyNames(o) //[x,y]
 ## css中的动画vs过度
 1. 过度transition: 过度是从一个状态到另一个状态，需要事件触发这个状态的变化，对应的属性指的是固有属性，如宽高、透明度等
 2. 动画animation: 动画是在一个声明中设置多个状态，例如在百分之多少的时候，重点是结合@keyframes自定义属性，完成比较复杂的动画
+
+## web Worker,service Worker,webSocket的对比
+1. web Workers可以让js运行到后台，来解决js线程可能会冻结页面的问题，我们可以将大量数据的处理交给workers来做，只将页面渲染事情
+交给js就好了；现在基本有三种worker: Worker(dedicated worker)、sharedWorker和service Worker
+```
+var myWorker = new Worker('need.js')
+myWorker.postMessage("") //这句话是用来启动worker的，说的worker不接受到信息是不会触发的
+```
+传的数据都支持字符串，自safari4之后都支持json格式。所以json也都是可以使用的。注意，这些数据的传输都是拷贝赋值的，而不是共享的执行环境
+相互之间都是通过postMessage和onmessage来通信的
+```
+//主线程
+var myWorker = new Worker('worker.js')
+myWorker.onmessage = function(oEvent){
+    console.log(oEvent.data)
+}
+myWorker.postMessage("从主线程来的")
+//worker.js的内部
+onmessage = function(oEvent){
+    postMessage("worker的数据1")
+}
+```
+停止worker的工作：myWorker.termiate();worker也可以自杀: self.close()
+worker与主页面所执行的js完全在不一样的作用域内，并不共用作用域。注意：webWorker代码不能访问dom，也无法任何方式影响外观，特点如下：
+- 全局对象就是Worker对象本身，就是self和this都指向Worker对象
+- 最小化的navigator对象，有online,appName,appVersion,userAgent,platFrom属性
+- 只读的location
+- settimeout,setInterval,cleartimeout,clearinterval
+- XMLHttpRequest构造函数
+所以，Worker的运行环境与页面相比，功能是相当有限的
+2. service worker为离线缓存而生，类似与app的服务，与浏览器的缓存不是一回事
+html5提出的service Worker，基于web Worker，可以说是web Worker的一种，他是一段运行在浏览器后台进程里的脚本，它独立于当前页面，提供了那些不需要与
+web页面交互的功能在网页背后悄悄执行的能力，在将来，基于它可以实现消息推送，静默更新以及地理围栏等服务，但目前它首先要具备的功能是拦截和处理网络请求，
+包括可编程的响应缓存管理，所以他可以在断网情况下轻松实现拦截用户请求，用已经缓存的页面
+代替服务器响应，简称离线缓存。
+注意：service Worker由于权限很高，只支持https协议或者localhost
+service worker的生命周期：
+- 安装
+- 激活，激活成功后，打开chrome://inspect/#service-workers可以查看当前运行的service Worker
+- 监听fetch和Message事件
+    - fetch事件：在页面发起http请求时，service Worker可以通过fetch事件拦截请求，并且给出自己的响应。w3c提供了一个新的fetch api，用于取代XMLHttpRequest，
+    与xhr最大的不同有：1.fetch返回的是promise对象，通过then方法进行连续调试，减少嵌套。es6的promise称为标准之后，会越来越方便开发人员；2.提供request和response对象，
+    前端要发起请求可以通过url发起，也可以使用request对象发起，而request可以复用。但是response用在哪里呢？在service Worker出现之前，前端确实不会自己给自己发消息，但是
+    有了service Worker，就可以在拦截请求之后根据自己做出响应，对页面而言，这和普通的请求没有区别
+    - message事件：页面和service Worker之间可以通过postMessage()发送消息，发送的消息可以通过message事件接收到，这是一个双向的过程，页面可以发消息给service Worker，service Worker也
+    可以发送消息给页面，由于这个特性，可以将service Worker作为中间纽带，使得一个域名或者子域名下的多个页面可以自有通信
+    - install事件：当页面加载时触发该事件。常用于缓存离线页面，当断开网络时，在该事件中缓存的页面将返回给用户
+    - acrive事件：当service Worker被触发时触发该事件。代码更新后，通常需要在activate的callback中执行一个管理cache的操作。因为你会需要清除掉之前旧的数据。我们在activate而不是install的时候
+    执行这个操作是因为如果我们在install的时候立马执行它，那么依然在运行的旧版本的数据就坏了
+- 销毁，是否销毁由浏览器决定，如果一个service Worker长期不使用或者机器内存有限，则可能销毁这个Worker
+cache storage：作为service Worker的一部分写在草案中，通过它我们可以方便地把请求以及请求结果一同缓存起来
+```
+//先判断这个请求是否已经被缓存过了，缓存过了就直接返回结果，没有的话就去请求，并把结果添加到缓存中，以便下次请求来时可以直接返回
+service-worker.js
+const handleFetchRequest = function(request){
+    return catch.match(request)
+    .then(function(response){
+        return response || fetch(request).then(function(response){
+            const clonedResponse = reponse.clone()
+
+            caches.open(CACHE_NAME).then(function(cache){
+                cache.put(request,cloneResponse)
+            })
+
+            return response
+        })
+    })
+}
+```
+使用cache storage的时候还需要注意以下几点：
+- 它只能缓存get请求
+- 每个站点只能缓存属于自己域下的请求，同时也能缓存跨域的请求，比如cdn，不过无法对跨域请求的请求头和内容进行修改
+- 缓存的更新需要自行实现
+- 缓存不会过期，除非将缓存删除，而浏览器对每个网站cache storage的大小有硬性限制，所以需要清理不必要的缓存
+上面的代码并没有做缓存的清除和更新，所以还要更新以下，同时给跨域请求添加{mode:'cors'}属性来使请求支持跨域，从而拿到响应
+头信息
+```
+ const HOST_NAME = location.host
+ const VERSION_NAME = 'CACHE-v1'
+ const CACHE_NAME = HOST_NAME + '-' + VERSION_NAME
+ const CACHE_HOST = [HOST_NAME,"cdn.bootcss.com"]
+
+ const isNeedCache = function(url){
+    return CACHE_HOST.some(function(host){
+        return url.search(host !== -1
+    })
+ }
+
+ const isCROSRequest = function(url,host){
+    return url.search(host) === -1
+ }
+
+ const isValidResponse = function(response){
+    return response && response.status >= 200 && response.status < 400
+ }
+
+ const handleFetchRequest = function(req){
+    if(isNeedCache(req.url)){
+        const request = isCROSRequest(req.url,HOST_NAME) ? new Request(req.url,{mode:'cors'})
+        return caches.match(request).then(function(response){
+            if(response){
+                fetch(request).then(function(response){
+                    if(isValidResponse(response)){
+                        caches.open(CACHE_NAME).then(function(cache){
+                            cache.put(request,response)
+                        })
+                    }
+                })
+            }else{
+                sentMessage('update cache' + request.url + ' fail: ' + response.message)
+            }
+        })catch(function(err){
+            sentMessage('Update cache' + request.url + " fail: " + err.message)
+        })
+    }
+    return response
+ }
+ ```
+ 具体的代码地址：[链接地址]{https://segmentfault.com/a/1190000008491458}
+ [链接地址]{http://blog.csdn.net/qiqingjin/article/details/51629278}
+

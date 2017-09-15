@@ -386,7 +386,130 @@ vue提供了transition的封装组件，在下列情形中，可以给任何元�
     - 组件根节点
 [不明白就看：]{http://www.jb51.net/article/108616.htm}
 [官方连接：]{https://vuefe.cn/v2/guide/transitions.html}
+## vue.js中利用js的event loop的原理
+vue中会异步执行dom更新，当观察到数据变化时，vue将开启一个队列，并缓冲在同一事件循环中发生的
+所有数据变化。如果同一个watcher被触发，只会一次推入到队列中。这种在缓冲时去除重复数据对于避免不必要的
+计算和dom操作非常重要。然后，在下一个的事件循环“tick”中，vue刷新队列并执行实际（已去重的）工作。vue在
+内部尝试对异步队列使用原生的Promise.then和MutationObserver，如果执行环境不支持，会采用setTimeout（fn,0）
+代替
+```
+//而当我门希望在数据更新之后执行某些DOM操作，就需要使用nextTick函数添加回调
+<div id="example">{{message}}</div>
 
+var vm = new Vue({
+    el: "#example",
+    data: {
+        message: '123'
+    }
+})
+vm.message = 'new message'
+vm.$el.textContent === 'new message'
+Vue.nextTick(function(){
+    vm.$el.textContent === 'new message'
+})
+```
+在组件内使用vm.$nextTick()实例方法特别方便，因为它不需要全局Vue，并且回调函数中的this将自动绑定到vue实例
+```
+vue.component("example",{
+    template: '<span>{{message}}</span>',
+    data: function(){
+        return {
+            message: "没有更新"
+        }
+    },
+    methods: {
+        updateMessage: function(){
+            this.message = '更新完成'
+            console.log(this.$el.textContext) //没有更新
+            this.$nextTick(function(){
+                console.log(this.$el.textContent) //更新完成
+            })
+        }
+    }
+})
+```
+使用microTask来执行批次任务
+```
+export const nextTick = (function(){
+    //需要执行的回调函数
+    const callbacks = [];
+
+    //是否处于挂起状态
+    let pending = false;
+
+    //时间函数句柄
+    let timerFunc;
+
+    //执行并且清空所有的回调列表
+    function nextTickHandler(){
+        pending = false
+        const copies = callbacks.slice(0)
+        callbacks.length = 0
+        for(let i=0;i<copies.length;i++){
+            copies[i]()
+        }
+    }
+    //nextTick的回调会被加入到MicroTask队列中，这里我们主要通过原生的Promise与MutationObserver实现
+    if(typeof Promise !== 'undefined' && isNative(Promise)){
+        let p = Promise.resolve()
+        let logError = err => {
+            console.log(err)
+        }
+
+        timeFunc = () => {
+            p.then(nextTickHandler).catch(logError)
+            //在部分ios系统下的UIWebViews中，Promise.then可能不会被清空
+            if(isIOS) setTimeout(noop)
+        }
+    }else if{
+        typrof MutationObserver !== 'undefined' &&
+        (isNative(MutationObserver) ||
+        MutationObserver.toString() === '[object MutationObserverConstructor]'){
+            let counter = 1
+            let observer = new MutationObserver(nextTickHandler)
+            let textNode = documnet.createTextNode(String(counter))
+            observer.observe(textNode,{
+                charactorData: true
+            })
+            timerFumc = () => {
+                counter = (counter + 1) % 2
+                textNode.data = String(counter)
+            }
+        }else{
+            //如果都不存在，则回退使用setTimeout
+            timerFunc = () => {
+                setTimeout(nextTickHandler,0)
+            }
+        }
+
+        return function queueNextTick(cb?:Function,ctx?:object){
+            let _resolve
+            callbacks.push(() => {
+                if(cb){
+                    try{
+                        cb.call(ctx)
+                    }catch(e){
+                        handlerError(e,ctx,'nextTick')
+                    }
+                }else if(_resolve){
+                    _resolve(ctx)
+                }
+            })if(!pending){
+                pending = true
+                timeFunc()
+            }
+
+            //如果没有传入回调，则表示以异步方式调用
+            if(!cb && typeof Promise !== 'undefined'){
+                return new Promise((resolve,reject) => {
+                    _resolve = resolve
+                })
+            }
+        }
+    }
+})()
+```
+[参考连接]{https://zhuanlan.zhihu.com/p/29116364?spm=5176.100239.blogcont205502.24.esFIuf}
 
 
 
