@@ -43,3 +43,38 @@ b和i是视觉要素，分别表示无意义的加粗和斜体
 - 只有当字体超过一段时间仍未加载成功时。浏览器才会降级使用系统的字体。每个浏览器都规定了自己
 的超时时间
 - 但是这也带来了FOIT(flash of invisible text)问题，类容无法尽快地被展示，导致空白
+9. cookie的生命周期
+可以通过setMAxAge()方法来设置cookie对象的有效时间，但是浏览器窗口关闭，cookie就会消失
+10. http请求中cookies的使用
+cookie的作用：cookie是用于维持服务器端会话状态的，通常由服务器端写入，在后续请求中，供服务器端读取
+![](../image/6.png)
+- http发送cookies的条件
+    - 本地已经缓存有cookies
+    - 根据url来匹配cookies的domain、path属性，如果符合才会发送，例如：访问www.baidu.com时，就不会发送www.qq.com的cookies
+- 网站登录与App自动登录的原理
+    - 用户在连接服务器时，服务器生成一个唯一的SessionID，而SeesionID这一个数据是保存在客户端，用Cooki额来保存，用户提交页面的
+    时候，会将保存SeesionID的cookies提交到服务器进行验证
+11. 顶级域名和子域名之间的cookies共享和相互修改、删除
+- 设置cookie
+    - 顶级域名只能设置domain为顶级域名，不能设置为二级域名或者三级域名，否则cookie无法生成
+    ```
+    //如yangbai.com能设置domain为yangbai.com或者www.yangbai.com，但是不能设置domain为login.yangbai.com，这样cookie不会生成
+    setcookie("name1","yangbai",time() + 1000) //yangbai.com自己可以看到
+    setcookie("name2","yangbai",time() + 1000,"/","www.yangbai.com") //.wwww.yangbai.com都可以看到
+    setcookie("name3","yangbai",time() + 1000,"/","yangbai.com") //.yangbai.com都可以看到
+    setcookie("name4","yangbai",time() + 1000,"/","login.youzan.com") //设置无效
+    //设置domain的时候，.yangbai.com和yangbai.com是一样的
+    //未指定domain时，默认的domain为用哪个域名访问就是哪个
+    ```
+    - 二级域名(以game.yangbai.com为例)
+    ```
+    setcookie("game","yangbai") //只有自己可以看到
+    setcookie("game1","yangbai",time() + 1000,"/","yangbai.com") //*.yangbai.com都可以看到
+    setcookie("game2","yangbai",time() + 1000,"/","chip.game.yangbai.com") //设置无效
+    ```
+- 读取cookie
+    - 二级域名能读取设置了domain为顶级域名或者自生的cookie，不能读取其他二级域名domain的cookie。
+    例如：想要cookie在多个二级域名中共享，需要设置domain为顶级域名，这样就可以在所有二级域名里面或者到这个cookie的值
+    - 顶级域名只能获取到domain设置为顶级域名的cookie，domain设置为其他子级域名的无法获取
+12. session依赖cookie，浏览器禁用了cookie怎么办？
+- URL重写：response.encodeURL()对每个请求的URL处理，这个方法会自动追加sessionid，与手动添加的效果是一样的

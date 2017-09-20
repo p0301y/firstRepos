@@ -141,7 +141,7 @@ instanceof\typeof替换
 3. http2.0采用二进制格式传输数据，而非http1.0的文本格式，二进制在协议的解析和优化扩展上
 带来了更多的优势和性能
 4. server push:服务器端能够更快的把资源推送给客户端
-补充：多路复用与http1.0的keep-alive(持久性连接的却别)[goto]{https://www.nihaoshijie.com.cn/index.php/archives/698/}
+补充：多路复用与http1.0的keep-alive(持久性连接的区别)[goto]{https://www.nihaoshijie.com.cn/index.php/archives/698/}
 ## html5带来的前端优化
 1. service worker:处理网络请求的后台服务。适用于离线和后台同步数据或者推送信息。不能直接和dom
 交互，通过postMessage方法交互（出于安全考虑，目前只能在https的环境中使用service worker）

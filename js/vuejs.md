@@ -510,7 +510,64 @@ export const nextTick = (function(){
 })()
 ```
 [参考连接]{https://zhuanlan.zhihu.com/p/29116364?spm=5176.100239.blogcont205502.24.esFIuf}
+## vuejs的计算属性computed和观察属性watch
+1. 计算属性
+- 模版里面的表达式是非常便利的，但是实际上只应用于简单的计算，因此只允许一个表达式
+```
+<div>
+    {{ message.split('').reverse().join('') }}
+</div>
+//在这种情况下，模版不再简单和清晰
+```
+- 声明计算属性
+```
+<div>
+    {{reverseMessage}}
+</div>
+<script>
+    var vue = new Vue({
+        el: "",
+        data(){
+          return {
+            message: "hello"
+          }
+        },
+        computed: {
+            reverseMessage: function(){
+                return this.message.split('').reverse().join('')
+            }
+        }
+    })
+</script>
+```
+2. watcher观察者属性,直接观察数据变化
+```
+<div>{{ fullName }}</div>
+<script>
+    var vm = new Vue({
+        el: "data",
+        data: {
+            firstName: "Roo",
+            fullName: ""
+        },
+        watch: {
+            //firstName变化的时候，将新的firstName作为参数传入
+            firstName: function(val){
+                this.fullName = this.firstName + "hello"
+            }
+        }
+    })
+</script>
+```
+3. computed vs watch
+- 理论上，computed能做的事情watch也能做，只是适用的场景不同，简单的依赖data中的数据，使用computed，需要观察data的数据变化，在变化之后进行操作，包括复杂的异步请求操作等，使用watch
 
 
-
-
+## vuejs中遇到的问题
+1. vuejs中使用iconfont把编码放在data中绑定到页面不会被解析，为什么？
+浏览器会当作普通的字符串处理；解决方法是使用v-html绑定data，当作html去解析
+2. 脏检查是什么意思？
+在angular中，使用的是脏检查机制，它并不是循环定时检查数据，而是设置了一些条件（如ajax请求等），当条件
+触发后，它就会执行一个检测来遍历所有的数据，对比更改了得地方，然后执行变化；这种检查不科学，而且效率
+不高，有很多多余的地方，不能像vue一样精确的更新，所以称为脏检查
+3. vue更新到2.0以后，就宣布不再更新vue-resource了，推荐使用axios

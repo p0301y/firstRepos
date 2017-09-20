@@ -392,3 +392,63 @@ const handleFetchRequest = function(request){
  具体的代码地址：[链接地址]{https://segmentfault.com/a/1190000008491458}
  [链接地址]{http://blog.csdn.net/qiqingjin/article/details/51629278}
 
+## 理解object与Object的区别
+typeof的结果是字符串，检查数据类型，结果有undefined,object,boolean,string,number,function;
+Object是对象类型，换句话说是关键字，"object"是一个字符串，不定义就没有意义，判断是否是Object
+的实例，用instanceof,instanceof Object
+Array,Boolean,Date,Error,Function,Number等都属于对象；
+Object的toString方法是将对象转化成字符串
+```
+var t = false
+console.log(typeof t) //boolean
+c = t.toString()
+console.log(typeof c) //string
+```
+## javascript类型检查与内部属性[[class]]
+所有对象都包含一个内部属性[[class]],我们不能直接访问这个属性，但是可以通过
+Object.prototype.toString.call(...),这也是比较靠谱的检查类型的方法(instanceof\constructor等)
+比如检测一个数组
+```
+Object.prototype.toString.call([1,2,3]) //[object Array]
+//这里的Array实际上就是调用了原生函数Array()内部的[[Class]]属性，我们可以封装一个检测类型的函数
+function classOf(obj){
+    return Object.prototype.toString.call(obj).slice(8,-1)
+}
+```
+javascript为基本类型值包装了一个封装对象，使他们变成对象，而String()\Number()\Boolean()上有属性[[Calss]],
+这里的undefined、null没有对应的原生函数，但仍然有内部属性返回
+- 为什么要用Object.prototype.toString.call(),而不是直接使用toString()呢？
+![](../image/5.png)
+可以看到只有普通对象返回我们想要的，这是因为普通对象直接调用了顶级原型Object上的toString方法，
+而数组、函数以及这些基本包装对象它们继承了Object的同时，重写了方法，在查找toString方法的时候，
+一定是自己原型链上的方法优先被找到，所以我们就需要利用call调用顶级原型Object.prototype上的toString方法
+
+## Array.isArray(Array.prototype) //true vs Array.prototype instanceof Array //false
+1. instanceof
+- 首先instanceof的判断方法是：左侧的原型链中的各个[[prototype]]指针是否指向Array.prototype(即右侧对象的原型)，
+如果有则返回true，Array.prototype.__proto__ === Object.prototype,所以instanceof是错误的
+```
+function instance_of(L,R){
+    var O = R.prototype
+    L = L.__proto__
+
+    while(true){
+        if(L === null){
+            return false
+        }
+        if(O === L){
+            return true
+        }
+
+        L = L.__proto__
+    }
+}
+```
+2.Array.isArray
+- 如果传入的参数不是Object，返回false
+- 如果内部属性[[Class]]是Array（通过Object.prototype.toString.call(...).splice(8)）,返回true
+- 其他情况都是返回false
+
+## 从eventloop理解异步
+[参考大神]{http://www.zhimengzhe.com/HTMLjiaocheng/294401.html}
+[参考连接]{https://segmentfault.com/a/1190000008299659}
