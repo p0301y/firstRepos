@@ -24,7 +24,9 @@ webworker现在可以在浏览器做多线程操作，但是比较限制；servi
 这是为了防止某域名下的接口被其他域名下的网页非法调用，是浏览器对javascript施加的安全限制
 - 目前常用的跨域的解决方法有：
 1. jsonp：利用script标签可跨域的特点，在跨域脚本中可以直接回调当前脚本的函数
-2. CROS: 服务器设置HTTP响应头中Access-Control-Allow-Origin值，解决跨域限制，目标服务器需要知道哪些地址的请求是可以响应的（说白了就是一种约定）
+2. CROS: 服务器设置HTTP响应头中Access-Control-Allow-Origin值，请求端设置origin值，如果前者包含后者，表示可以访问（acess-control-allow-origin: *;表示任何请求都接受）
+解决跨域限制，目标服务器需要知道哪些地址的请求是可以响应的（说白了就是一种约定）
+[参考连接：]{https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS}
 
 下面介绍一种前端独立就能解决的跨域方案【代理和反向代理】
 - 代理

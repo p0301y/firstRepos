@@ -452,3 +452,103 @@ function instance_of(L,R){
 ## 从eventloop理解异步
 [参考大神]{http://www.zhimengzhe.com/HTMLjiaocheng/294401.html}
 [参考连接]{https://segmentfault.com/a/1190000008299659}
+
+## js正则表达式的总结
+1. 定义正则对象
+    - 构造函数的方式
+    ```
+    var reg = new RegExp("abc","gi")
+    ```
+    - 字面量的方式
+    ```
+    var reg = /abc/gi
+    ```
+2. 属性
+    - global 布尔 表示正则是否全局匹配
+    - ignoreCase 布尔 表示是否忽略大小写
+    - lastIndex Number 表示上次匹配成功的位置
+    - mutiline 布尔 表示是否多行匹配
+    - source  String 表示正则的类容
+3. 方法
+    - reg.test() 参数为String，返回值为boolean，表示是否匹配
+    ```
+    var reg = /boys(s)?\s+and\s+girls(s)?/gi
+    console.log(reg.test("boy and girl"))
+    ```
+    - reg.compile() 参数是正则表达式，无返回值，对正则表达式进行编译，被编译过的正则表达式在使用的时候效率更高；适用于一个正则多次被使用的情况
+    ```
+    var reg = /[abc]+/gi
+    reg.compile(reg)
+    console.log(reg.test("abc"))
+    ```
+    - reg.exec() 接受String，返回array，长度为1，从左向右一次匹配,有点类似迭代器
+    ```
+    var reg = /../
+    var str = "asfdasf"
+    var arr = reg.exec(str)
+    while(arr){
+        console.log(arr)
+        console.log(reg.lastIndex)
+        arr = reg.exec(str)
+    }
+
+    //example and result
+    var reg = /abc/gi
+    var str = "12abc34abc567abc"
+    var arr = reg.exec(str)
+    while(arr){
+    	console.log(arr)
+    	console.log("last:" + reg.lastIndex)
+    	arr = reg.exec(str)
+    }
+    VM12798:5 ["abc", index: 2, input: "12abc34abc567abc"]
+    VM12798:6 last:5
+    VM12798:5 ["abc", index: 7, input: "12abc34abc567abc"]
+    VM12798:6 last:10
+    VM12798:5 ["abc", index: 13, input: "12abc34abc567abc"]
+    VM12798:6 last:16
+    ```
+   - String中有关正则的方法
+        - search() 查找第一个匹配的位置，参数为正则，返回值为Number index
+        ```
+        var str = "afddasfa"
+        console.log(str.search(/o/g))
+        ```
+        - replace() 匹配到的类容替换（第一个参数为正则或者子字符串，第二个参数为被替换类容,返回值为新的字符串）
+        ```
+        var str = "me hello me"
+        console.log(str.replace(/me/g,"you")) // you hello you
+        ```
+        - split() 将字符串拆分成数组（接受正则或者子字符串）
+        ```
+        var str = "how|old are you"
+        var arr = str.split("")
+        ```
+        - match() 依次返回匹配结果，类似迭代（参数为正则）
+        ```
+        var reg = /ab/g
+        var str = "ab34rab"
+        var result = str2.match(reg)
+        while(result){
+            console.log(result)
+            console.log(reg.lastIndex)
+        }
+        ```
+- 常见的正则匹配规则
+    - ^ 匹配一个输入或者一行的开头
+    - $ 结尾
+    - * 0次或者多次
+    - + 1次或者多次
+    - ？ 0次或者1次
+    - (x) 匹配x保存x在名为$1,$2...$9的变量中
+    - x|y 匹配x或y
+    - {n} 精确匹配n次 {n,}{n,m}
+    - [xyz] xyz的子集
+    - [^xyz] 不匹配任何一个
+    - [\b] 退格符
+    - \b 单词边界 \B 单词非边界
+    - \d 数字 \D 非数字
+    - \n 换行
+    - \r 回车
+    - \s 空白 \S 非空白
+    - \w 可以组成单词的字符（数字、字母和下划线）[a-zA-Z0-9] \W 不可以组成单词的字符
