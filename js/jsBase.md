@@ -483,6 +483,7 @@ function instance_of(L,R){
     ```
     - reg.exec() 接受String，返回array，长度为1，从左向右一次匹配,有点类似迭代器
     ```
+    //exec()每次返回的数组类容：第一个为整个匹配的字符串，第二个为reg中()所定义分组所匹配的字符串
     var reg = /../
     var str = "asfdasf"
     var arr = reg.exec(str)
@@ -524,15 +525,15 @@ function instance_of(L,R){
         var str = "how|old are you"
         var arr = str.split("")
         ```
-        - match() 依次返回匹配结果，类似迭代（参数为正则）
+        - match() 返回匹配的数组（参数为正则）
         ```
-        var reg = /ab/g
-        var str = "ab34rab"
-        var result = str2.match(reg)
-        while(result){
-            console.log(result)
-            console.log(reg.lastIndex)
-        }
+        var tpl = "<p>hello,call me <%name%>,i am <%age%></p>"
+        var reg = /<%([^%>]+)?%>/g
+        var match = tpl.match(reg)
+        console.log(match)
+        match.forEach(function (value,index) {
+            console.log("index:"+index+"is value:"+value)
+        })
         ```
 - 常见的正则匹配规则
     - ^ 匹配一个输入或者一行的开头
@@ -552,3 +553,46 @@ function instance_of(L,R){
     - \r 回车
     - \s 空白 \S 非空白
     - \w 可以组成单词的字符（数字、字母和下划线）[a-zA-Z0-9] \W 不可以组成单词的字符
+
+## 事件处理中的this
+[参考连接]{https://www.tianmaying.com/tutorial/javascript-event}
+## 如何检查javascript变量的类型
+- typeof
+- instanceof
+- constructor
+- toString
+
+## js内置对象Date
+1. 获取当前时间
+```
+var currentDate = new Date() //Wed Sep 27 2017 15:11:36 GMT+0800 (中国标准时间
+
+var current = Date.now() //1506496320194
+
+//两者相互转化是通过getTime方法，单位是毫秒
+var current = new Date()
+console.log("gettime:"+current.getTime())
+console.log(Date.now())
+VM408:2 gettime:1506496853817
+VM408:3 1506496853817
+```
+2. 创建date对象
+```
+var date1 = new Date(2013,7,27)
+var date2 = new Date('2017/7/27')
+```
+3. 获取当前时间的年月日
+```
+var date = new Date()
+var year = date.getFullYear()
+var month = date.getMonth()
+var day = date.getDate()
+```
+4. 如何计算两个时间差(单位是毫秒msec)【用于倒计时计算】
+```
+var now = Date.now()
+var target = new Date("2017/9/25")
+target = target.getTime()
+console.log(target - now)
+```
+

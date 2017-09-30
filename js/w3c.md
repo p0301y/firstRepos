@@ -457,3 +457,27 @@ iie6 - 8不支持:root选择器
  - 宽度缺省是它容器的100%，除非设定一个宽度
  - 它可以容纳行内元素和其他的块级元素
 [常见的块级元素与行内元素]{http://www.cnblogs.com/WebShare-hilda/p/4708381.html}
+
+## 自定义事件的两种方法
+1. 使用new Event()【推荐】
+```
+var btn = document.querySelector('.button')
+var ev = new Event("test",{
+    bubbles: 'true',
+    cancelable: 'true'
+})
+btn.addEventListenr('test',function(event){
+    console.log("hello,it is me")
+},false)
+btn.dispatchEvent(ev)
+```
+2. document.createEvent()
+```
+//只是将创建事件和初始化事件分成了两个步骤
+var preview = document.createEvent("Event")
+preview.initEvent("preview",true,true)
+preview.addEventListener("preview",function(){
+    console.log("it is me")
+},false)
+btn.dispatchEvent(preview)
+```
