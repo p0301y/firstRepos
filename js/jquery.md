@@ -93,3 +93,32 @@ var type = $("").data("type")
 11. $("").eq(0).html(): 链式调用（每个方法返回jquery对象）
 12. jquery.fn.extend(object): 给jquery对象添加实例方法，就是在原型prototype添加方法， 通过extend添加的新方法，实例化的jquery对象都可以使用，
 即$("").functionName();jquery.extend(object): 给jquery添加静态方法，通过$.functionName()
+
+## jquery源码部分知识
+1. jquery.fn.css()的内部关键使用的js的getComputedStyle以及getPropertyValue方法
+    - getComputedStyle()的用法：可以获取当前元素所有最终使用的css属性值，返回一个
+    css样式声明对象（只读）
+    ```
+    var style = window.getComputedStyle("元素"，"伪类")
+    var style = document.getComputedStyle(...)
+
+    var dom = document.getElementById("test")
+    style = window.getComputedStyle(dom,":after")
+    ```
+    - getComputedStyle与style的区别：
+        1. 只读与可写：getComputedStyle只读，element.style可读可写
+        2. 获取的对象范围：getComputedStyle方法获取的是最终应用在元素上的所有css属性对象（即使没有css代码，也会把默认的祖宗十八代都
+        显示出来）；而lement.style只能获取元素style属性中的css样式
+    - getComputedStyle与defaultView
+        如果查看jquery源码，会发现css()使用的是document.defaultView.getComputedStyle;
+        实际上defaultView更本没有必要，getComputedStyle本身就存在于window对象
+    - ie中使用element.currentStyle,功能与getComputeStyle相似
+    - getPropertyValue方法（与getAttribute()类似）可以获取css样式申明对象上的属性值（直接属性名称，ie9+浏览器都支持），如果不使用getPropertyValue方法，直接使用键值访问
+    ```
+    var style = document.getComputedStyle(dom,null)
+    //以下三种写法是等价的
+    style.getPropertyValue("float")
+    style.float
+    style.getAttribute("float")
+    ```
+
