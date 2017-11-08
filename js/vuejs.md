@@ -571,3 +571,103 @@ export const nextTick = (function(){
 触发后，它就会执行一个检测来遍历所有的数据，对比更改了得地方，然后执行变化；这种检查不科学，而且效率
 不高，有很多多余的地方，不能像vue一样精确的更新，所以称为脏检查
 3. vue更新到2.0以后，就宣布不再更新vue-resource了，推荐使用axios
+
+## vue-router的实现
+1. “更新视图但不重新请求页面”是前端路由原理的核心之一，目前有两种实现方式：利用URL的hash("#");
+利用history interface在HTML5中新增的方法；（vue-router中是通过mode这一参数控制路由的实现模式的）
+```
+const router = new VueRouter({
+    mode: "history",
+    routes: [...]
+})
+```
+VueRouter对象的源码
+```
+export default class VueRouter{
+    mode: string; //传入的字符串参数，指示history类别
+    history: HashHistory | HTML5History | AbstractHistory; //实际起作用的对象属性
+    fallback: boolean; //如果浏览器不支持，"history"模式回滚到"hash"模式
+
+    constructor (option: RouterOptions = {}){
+        let mode = options.mode || "hash" //默认为"hash"模式
+        this.fallback = mode === 'history' && !supportsPushState
+        if(this.fallback){
+            mode = "hash"
+        }
+        if(!inBrowser){
+            mode = 'abstract' //不再浏览器环境下运行需要强制为"abstract"模式
+        }
+        this.mode = mode
+
+        //根据mode确定history实际的类并实例化
+        switch(mode){
+            case 'history':
+                this.history = new HTML5History(this,options.base)
+                break
+            case 'hash':
+                this.history = new HashHistory(this,options.base,this.fallback)
+                break
+            case 'abstract':
+                this.history = new AbstractHistory(this,options.base)
+                break
+            default:
+                if(process.env.NODE_ENV !== 'production'){
+                    assert(false,'invalid mode: ${mode}')
+                }
+        }
+    }
+
+    init(app:any /* Vue component instance */){
+        const history = this.history
+
+        //根据history的类别执行相应的初始化和监听
+        if(history instanceof HTML5History){
+            history.transitionTo(history.getCurrentLocation())
+        }else if(history instanceof HashHistory){
+            const setupHashListener = () => {
+                history.setupListeners()
+            }
+            history.transtionTo(
+                history.getCurrentLocation(),
+                setupHashListener,
+                setupHashListener
+            )
+        }
+
+        history.listen(route => {
+            this.apps.forEach((app) => {
+                app._route = route
+            })
+        })
+    }
+
+    //VueRouter类暴露的以下方法实际是调用具体history对象的方法（代理封装）
+    push(location: RawLocation,onComplete?:Function,onAbort?:Function){
+        this.history.push(loaction,onCompiete,onAbort)
+    }
+
+    replace(loaction: RawLoaction,onComplete?: Function,onAbort?: Function){
+        this.history.replace(loaction,onComplete,onAbort)
+    }
+}
+```
+
+- HashHistory原理：#符号本身以及它后面的字符称之为hash，可以通过window.location.hash属性读取，它有的特征：
+    - hash虽然出现在URL中，但不会被包括在HTTP请求中，他是用来指导浏览器动作的（或者说是存储数据），对服务器端完全
+    无用，因此，改变hash不会重新加载页面
+    - 可以为hash的改变监听事件
+    ```
+    window.addEventListener("hashChange",funcRef,false)
+    ```
+    - 每一次改变hash（window.location.hash），都会在浏览器的访问历史中增加一条记录
+- HTML5History: history interface是浏览器历史记录栈提供的接口，通过back(),forword(),go()等方法，
+我们可以读取浏览器历史记录栈的信息，进行各种跳转操作。从HTML5增加了pushState()和replaceState()可以对浏览器
+历史记录栈进行修改，换句话说，按照自己的想法存储url：
+```
+window.history.pushState(stateObject,title,URL)
+window.history.replaceState(stateObject,title,URL)
+```
+ - stateObject: 当浏览器跳转到新的状态时，将触发popState事件，该事件将携带这个stateObject参数的副本
+ - title: 所添加记录的标题
+ - url: 添加记录的url
+参考连接：[参考连接]{https://zhuanlan.zhihu.com/p/27588422}

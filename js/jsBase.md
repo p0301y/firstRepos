@@ -596,3 +596,42 @@ target = target.getTime()
 console.log(target - now)
 ```
 
+## javascript函数的节流
+1. 为什么要节流？
+拿窗口的resize事件来说，在改变窗口大小的过程中，不间断的触发resize事件，并且执行回调函数，触发事件是避免不了的，但是可以限制调用回调函数，在必要的时候才去执行，这就是产生节流函数的原因
+```
+n=0;
+    //节流函数
+    function throttle(method,context) {
+        clearTimeout(method.tId)
+        method.tId = setTimeout(function () {
+            method.call(context)
+        },100)
+    }
+
+    function resizehandler() {
+        console.log(new Date().getTime())
+        console.log(++n)
+    }
+
+    window.onresize = function () {
+        throttle(resizehandler,window)
+    }
+
+    //改进版节流函数，到达固定间隔必须执行(在函数节流的基础上间隔固定时间就执行一次)
+    function throttle(method,delay,duration){
+                var timer=null, begin=new Date();
+                return function(){
+                    var context=this, args=arguments, current=new Date();;
+                    clearTimeout(timer);
+                    if(current-begin>=duration){
+                         method.apply(context,args);
+                         begin=current;
+                    }else{
+                        timer=setTimeout(function(){
+                            method.apply(context,args);
+                        },delay);
+                    }
+                }
+    }
+```
