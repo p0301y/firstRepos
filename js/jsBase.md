@@ -635,3 +635,49 @@ n=0;
                 }
     }
 ```
+
+## 理解js的线程
+1. 浏览器是多线程的:js线程、UI渲染线程、js事件（eventloop线程）；其中js是用来获取并且操作dom的，UI是用来渲染dom元素的，所以js线程与UI线程是互斥的，js执行的时候会阻塞dom的渲染
+2. 以亲生经历为例：
+    - ajax搭配自己写的loading效果（后台获取事件比较长，所以在页面显示刷新等待的gif图），初始的代码如下，但是效果没有显示出来，原因是：使用
+    同步的ajax，会阻塞UI渲染线程，所以没有显示loading的效果
+    ```
+    $.shadow("")
+    $.ajax({
+        ...,
+        aysnc: false,//同步
+    })
+    $.hideShadow()
+    ```
+    - 该进方法：使用setTimeout()将ajax请求放入下个事件循环，具体代码如下，结果：显示了loading，但是gif图片不动
+    ```
+    $.shadow("")
+    setTimeout(function(){
+        $.ajax({
+            ...,
+            aysnc: false,//同步
+        })
+        $.hideShadow()
+    },0)
+    ```
+    - setTimeout()只是将同步ajax执行放入下个事件循环，所以UI线程会先渲染loading页面，但是执行同步ajax的时候，阻塞了UI，使得
+    gif图无法动画；最终的解决方法是不要用ajax同步，改用异步，但是使用同步的写法(promise,jquery就配合$deffered)，以便数据可以为后面使用，具体代码如下:
+    ```
+    $.shadow("")
+    function ajax(){
+        var def = $.Deferred()
+        $.ajax({
+            ...,
+            success: function(data){
+                def.resolve(data)
+            }
+        })
+        return def
+    }
+    $.when(ajax()).done(function(data){
+        console.log(data)
+        $.hideShadow()
+    })
+    ```
+
+

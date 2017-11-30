@@ -671,3 +671,71 @@ window.history.replaceState(stateObject,title,URL)
  - title: 所添加记录的标题
  - url: 添加记录的url
 参考连接：[参考连接]{https://zhuanlan.zhihu.com/p/27588422}
+
+## vue插件的写法
+1. 插件一般的导入形式(选择哪种方式，根据需要决定)
+```
+es6
+import vuePayKeyboard from 'vue-pay-keyboard'
+
+//通过require导入
+var vuePayKeyboard = require('vuePayKeyboard')
+
+//通过use挂载，全局注册
+Vue.use(vuePayKayboard)
+
+//或者直接导入js文件
+<script src="./dist/vue-pay-keyboard.js"></script>
+```
+2. vue插件规范
+```
+const plug = { //定义一个对象
+    install(Vue,options){ //需要拥有一个install方法
+
+    }
+}
+//导出这个对象
+export default plug
+```
+3. vue.use源码分析
+```
+Vue.use = function(plugin){
+    if (plugin.installed){
+        return
+    }
+
+    var args = toArray(arguments,1)
+    args.unshift(this)
+    if(typeof plugin.install === 'function'){
+        plugin.install.apply(plugin,args)
+    }else if(typeof plugin === 'function'){
+        plugin.apply(null,args)
+    }
+
+    plugin.installed = true
+    return this
+}
+```
+4. 书写插件
+```
+//1. 添加全局方法或属性
+Vue.myGlobelMethod = function(){
+
+}
+//2.添加全局资源[指令或者是过滤器等]
+Vue.directive("my-directive",{
+    bind(el,binding,vnode,oldVnode){
+    }
+})
+Vue.filter("formatTime",function(){
+})
+//3.注入组件
+Vue.mixin({
+    created: function(){
+    }
+})
+//4. 添加实例方法
+Vue.prototype.$myMethod = function(options){
+    //逻辑
+}
+```

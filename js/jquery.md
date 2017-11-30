@@ -122,3 +122,26 @@ var type = $("").data("type")
     style.getAttribute("float")
     ```
 
+2. jquery插件的写法
+2.1 原型方法
+    - $.fn.functionName = function([options]){};一次一个函数
+    - $.fn.extend({functionName:function(){},..});一次声明多个函数
+2.2 静态方法
+    - $.extend(defaults,options);其中default为默认设置，options为传入的参数；
+    这个函数的作用是用后面的参数与第一个参数进行合并然后返回它的值
+    ```
+    (function($){
+        $.fn.color = function(options){
+            var defaults = {color: "blue",size:"30px"}
+            console.log($.extend(defaults,options))
+            console.log(defaults)
+            console.log(options)
+            //return的作用是支持链式调用
+            return $(this).each(function(){
+                $(this).css({"color": options.color})
+                $(this).css({"font-size": options.size})
+            })
+        }
+    })(window.jQuery)
+    ```
+    - $.extend({},defaults,options),不会导致defaults被代替，所以一般选择使用这个
