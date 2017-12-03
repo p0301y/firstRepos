@@ -145,3 +145,20 @@ var type = $("").data("type")
     })(window.jQuery)
     ```
     - $.extend({},defaults,options),不会导致defaults被代替，所以一般选择使用这个
+    ```
+    var defaults = {name:"jaksdlfj"},options = {age: 23}
+    console.log($.extend(defaults,options))
+    console.log(defaults)
+    console.log(options)
+    VM308:2 {name: "jaksdlfj", age: 23}
+    VM308:3 {name: "jaksdlfj", age: 23}
+    VM308:4 {age: 23}
+    undefined
+    var defaults = {name:"jaksdlfj"},options = {age: 23}
+    console.log($.extend({},defaults,options))
+    console.log(defaults)
+    console.log(options)
+    VM311:2 {name: "jaksdlfj", age: 23}
+    VM311:3 {name: "jaksdlfj"}
+    VM311:4 {age: 23}
+    ```
