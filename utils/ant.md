@@ -22,3 +22,29 @@ if(/iphone|ipad|ipod/.test(ua)){
 ```
 ## 你想要的博客都在这里
 [参考连接]{http://caibaojian.com/c/qianduan/page/4}
+## webApp与hybirdApp
+- webApp:在应用中内嵌网页，一般使用的开发平台是cordova，开发步骤:
+```
+cnpm install cordova -g
+cordova create AppName
+cd AppName
+cnpm install
+cordova platform add android
+cordova platform list
+cordova run android
+```
+- hybirdApp:三端统一开发，生成的文件是jsbundle，运行在不同的平台上，最终转化成原生；一种是vue-native,结合vue技术的weex，另一种是
+结合react技术的react-native。
+    - weexpack开发搭建weex项目开发hybirdApp:
+    ```
+    cnpm install weexpack
+    weexpack create AppName
+    cd AppName
+    cnpm install
+    weexpack platform add android
+    weexpack platform list
+    weexpack run android
+    ```
+    其中weexpack run android这条命令的时候出现下载Downloading...//services.gradle.org/distributions/gradle-2.14.1-all.zip极慢，
+    解决办法：手动下载指定版本的gradle.zip到本地D:/gradle/gradle-2.14.1-all.zip,然后替换项目中 android/gradle/wrapper/gradle-wrapper.properties 的 distributionUrl ，
+    即  distributionUrl=file\:///D:/gradle/gradle-2.14.1-all.zip （注意这里需要加上转义字符\）
