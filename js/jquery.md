@@ -121,6 +121,16 @@ var type = $("").data("type")
     style.float
     style.getAttribute("float")
     ```
+    - currentStyle: 此方法为ie特有（正确的获取style方法）
+    ```
+    function getStyle(ele,attr) {
+        if (window.getComputedStyle){
+            return window.getComputedStyle(ele,false)[attr]
+        }else{
+            return ele.currentStyle[attr]
+        }
+    }
+    ```
 
 2. jquery插件的写法
 2.1 原型方法
@@ -161,4 +171,90 @@ var type = $("").data("type")
     VM311:2 {name: "jaksdlfj", age: 23}
     VM311:3 {name: "jaksdlfj"}
     VM311:4 {age: 23}
+    ```
+
+## jquery的一些方法
+1. 判断class和移除class
+    - 是否包含某个class: hasClass(),结果为true或者false
+    ```
+    $jq.hasClass("alkhfdas")
+    ```
+    - 是否包含某些class: is(),可以同时包含多个class(注意写法),结果为true或者false
+    ```
+    $jq.is(".func,.shun")
+    ```
+    - 添加class: addClass()
+    ```
+    $jq.addClass("junm")
+    ```
+    - 删除class: removeClass()
+    ```
+    $jq.removeClass("test")
+    ```
+2. $.each()的用法，因为.forEach()不支持ie8
+    - 使用forEach()
+    ```
+    var arr = [1,3,4]
+    arr.forEach(function(index,value){
+        ..
+    })
+    ```
+    - 使用$.each()(注意：当是jquery对象类数组，value变成了原生js对象，使用的时候需要转化成jquery对象)
+    ```
+    var $list = $(".class")
+    $.each($list,function(index,value){
+        var $val = $(value)//将原生js对象转化成jquery对象
+        $val.hasClass("test")
+        ..
+    })
+    ```
+    附录：$.each()源码
+    ```
+    var an = {
+                isArraylike: function (obj) {
+                    return obj instanceof Array
+                },
+                each: function(obj,callback,args){
+                    var value,i = 0,length = obj.length,isArray = this.isArraylike(obj)//判断是不是数组
+                    if(args){
+                        if(isArray){//数组
+                            for(;i < length; i++){
+                                value = callback.apply(obj[i],args)
+                                if(value === false){
+                                    break;
+                                }
+                            }
+                        }else{//非数组
+                            for(i in obj){//遍历对象
+                                value = callback.apply(obj[i],args)
+                                if(value === false){
+                                    break
+                                }
+                            }
+                        }
+                    }else{
+                        if(isArray){
+                            for(;i < length;i++){
+                                value = callback.call(obj[i],i,obj[i]) //相当于callback(i,obj[i])
+                                if(value === false){
+                                    break
+                                }
+                            }
+                        }else{
+                            for(i in obj){
+                                value = callback.call(obj[i],i,obj[i])
+                                if(value === false){
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    return obj
+                }
+            }
+
+            var arr = [1,2,3,4]
+            an.each(arr,function (index,val) {
+                console.log(index+" value is:"+val)
+            })
     ```
