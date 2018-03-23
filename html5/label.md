@@ -26,3 +26,5 @@ http-equiv顾名思义，相当于http的文件头作用，它可以向浏览器
     ```
     <meta http-equiv="content-Type" content="text/html;charset=gb2312">
     ```
+2. readonly属性在ie8下失效等问题
+    - 设置unselecteble = "on"

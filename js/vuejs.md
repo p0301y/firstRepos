@@ -739,3 +739,21 @@ Vue.prototype.$myMethod = function(options){
     //逻辑
 }
 ```
+5. vue.js的一般项目目录
+```
+.
+├── App.vue             # 项目如何组件
+├── api                 # 存放接口相关文件
+├── assets              # 存放项目资源文件，比如图片
+├── components          # 存放通用组件
+├── directive           # 存放全局自定义指令
+├── filters             # 存放全局过滤器
+├── main.js             # 项目入口文件
+├── mock                # mock数据
+├── router              # 路由
+├── store               # 状态管理
+├── styles              # 样式文件
+├── utils               # 存放工具函数
+└── views               # 存放视图类组件
+
+```

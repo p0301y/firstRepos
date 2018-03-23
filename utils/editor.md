@@ -7,3 +7,4 @@
 - shift + enter: 进入下一行
 - ctrl + Y: 删除一整行
 - ctrl + D: 复制当前行
+- ctrl + G: 索引行，移动到指定行

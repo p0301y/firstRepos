@@ -155,3 +155,16 @@
     - 第四等：代表类型选择器和伪元素选择器，如div p，权值0001
     - 通配符、子选择器、相邻选择器，如*、>、+,权值为0000
     - 继承的样式没有权值
+
+## 居中问题
+1. position: absolute;和position: fixed;如何居中
+```
+{
+    position: absolute;/fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+}
+```

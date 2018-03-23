@@ -258,3 +258,95 @@ var type = $("").data("type")
                 console.log(index+" value is:"+val)
             })
     ```
+3. $.extend({},obj1,obj2)与$.extend(true,{},obj1,obj2)
+$.extend({},obj1,obj2)是浅合并而$.extend(true,{},obj1,obj2)是深合并，迭代(recursively)
+一般建议使用后者
+```
+var obj1 = {
+    apple:0,
+    banana: {weight: 52,price: 100},
+    cherry: 97
+}
+var obj2 = {
+    banana: {price: 200},
+    durian: 100
+}
+$.extend(obj1,obj2) //{apple:0,banana:{price:200},cherry:97,durian:100}
+$.extend(true,ibj1,obj2) //{apple:0,banana:{weight: 52,price:200},cherry:97,durian:100}
+```
+4. $().html("")与$().empty()对比
+html("")的内部实现是利用innerHTML = ""来实现的；而empty("")首先给后代元素移除绑定、清除jquery给dom的cache，
+然后循环removeFirstChild
+```
+//empty源码
+empty: function(){
+    var elem,
+        i = 0;
+    for(;(elem = this[i]) != null;i++){
+        if(elem.nodeType === 1){
+            //循环清除Data数据
+            jQuery.cleanData(getAll(elem,false))
+        }
+
+        //移除child
+        while( elem.firstChild ){
+            elem.removeChild( elem.firstChild )
+        }
+        if(elem.options && jQuery.nodeName( elem,"select" )){
+            elem.options.length = 0
+        }
+    }
+
+    return this
+}
+
+```
+5. 如何比较两个jQuery对象是否相等
+将jQuery对象转化成原生的dom对象,或者使用$("").is()方法
+```
+var $obj = $(".num"),$obj1 = $(".num1")
+var node = $obj.get(0),
+    node = $obj[0]
+$obj.is($obj1)
+
+<div class="duan"></div>
+$(".duan").is("div")
+```
+
+
+## 推荐jquery的相关插件（冷门但是好用的）
+1. loading插件:jquery.showLoading.js
+```
+// 1. 声明想要用来遮罩的容器
+<div id="loading"></div>
+// 2. js中调用showLoading()和hideLoading()方法
+jQuery("#loading").showLoading()
+jQuery("#loading").hideLoading()
+// 3. 修改Loading的动画图标，可以修改为自己的gif动画
+.loading-indicator{
+    height: 80px;
+    width: 80px;
+    background: url("/img/loading.gif");
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+```
+2. 消息提示: jquery.toast.js
+3. 前端模版: handlebar.js
+```
+<div class="person">
+    <p>姓名：{{name}}</p>
+    <p>出生地：{{home}}</p>
+    <p>职业：{{job}}</p>
+</div>
+<div class="wrap"></div>
+var data = {
+    name: "peng",
+    home: "china",
+    job: "teacher"
+}
+var tmpl = $(".person").html()
+var compiled = Handlerbars.compile(tmpl)
+var result = compiled(tmpl)
+$(".wrap").html(result)
+```

@@ -680,4 +680,77 @@ n=0;
     })
     ```
 
+## 重写js的bind方法，使其支持ie8
+```
+if(!Function.prototype.bind){
+    Function.prototype.bind = function(oThis){
+        if(typeof this !== "function"){
+            throw new TypeError("Function.prototype.bind error")
+        }
+        var aArgs = Array.prototype.slice.call(arguments,1)
+        fToBind = this
+        fNOP = function (){}
+        fBound = function(){
+            return fToBind.apply((this instanceof fNOP && oThis) ? this : oThis,aArgs.concat(Array.prototype.slice.call(arguments)))
+        }
+        fNOP.prototype = this.prototype
+        fBound.prototype = new fNOP()
+        return fBound
+    }
+}
+```
+
+## 如何判断浏览器的种类
+```
+function myBrowser(){
+        var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+        var isOpera = userAgent.indexOf("Opera") > -1;
+        if (isOpera) {
+            return "Opera"
+        }; //判断是否Opera浏览器
+        if (userAgent.indexOf("Firefox") > -1) {
+            return "FF";
+        } //判断是否Firefox浏览器
+        if (userAgent.indexOf("Chrome") > -1){
+            return "Chrome";
+        }
+        if (userAgent.indexOf("Safari") > -1) {
+            return "Safari";
+        } //判断是否Safari浏览器
+        if (userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1 && !isOpera) {
+            return "IE";
+        }; //判断是否IE浏览器
+    }
+```
+
+## 如何清除或者禁用元素的点击事件
+1. css3方法:  pointer-events属性(支持ie11)
+```
+.class{
+    pointer-events: none;
+}
+```
+2. js方法：
+```
+1.如果是js绑定
+ele.onclick = function(){...}
+//要清除的话，用空方法覆盖
+ele.onclick = function(){}
+
+2. jquery on方法绑定的点击事件
+$ele.on("click",function(){})
+$ele.off("click",function(){})
+
+3.或者在点击事件的回调中判断状态（全局变量flag）
+var flag = true
+$ele.on("click",function(){
+    if(flag){
+    ...
+    }
+})
+
+function toggle(){
+    flag = !flag
+}
+```
 

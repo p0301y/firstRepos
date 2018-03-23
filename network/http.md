@@ -28,3 +28,28 @@
 3. SPDY协议
     - SPDY与HTTP相比较的优点：支持多路复用，实现请求优化；支持服务器推送技术；压缩了Http报文的首部信息，
     节省传输数据宽带；强制使用SSL传输协议，全部由SSL加密，信息传输更加安全
+
+4. fetch和XMLHttpRequest
+    fetch是XMLHttpRequest的一种替代方案
+    jquery1.5以后映入$.deffered功能，使得ajax的写法类似于fetch，fetch的支持情况不是很好
+    ```
+    var myHeeaders = new Header()
+
+    var myInit = {
+        method: "GET",
+        headers: myHeaders,
+        mode: "cors",
+        cache: 'default'
+    }
+    fetch("flowers.jpg",myInit).then(function(response){
+        return response.blob()
+    }).then(function(myBlob){
+        var objectURL = URL.createObjectURL(myBlob)
+        myImage.src = objectURL
+    })
+    ```
+    - fetch的优点：
+    1. 语法简单，更加语义化
+    2. 基于标准的Promise实现，支持async/await
+    3. 同构方便，使用isomorphic-fetch
+    - 如果兼容ie8的话，需要引入ployfill
