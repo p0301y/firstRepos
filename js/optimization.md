@@ -23,7 +23,23 @@ webworker现在可以在浏览器做多线程操作，但是比较限制；servi
 - 背景：跨域是由浏览器的同源策略引起的，是指页面请求的接口地址，必须与页面url地址处于同域上（即域名，端口，协议相同）
 这是为了防止某域名下的接口被其他域名下的网页非法调用，是浏览器对javascript施加的安全限制
 - 目前常用的跨域的解决方法有：
-1. jsonp：利用script标签可跨域的特点，在跨域脚本中可以直接回调当前脚本的函数
+1. jsonp：利用script标签可跨域的特点，在跨域脚本中可以直接回调当前脚本的函数，只能用于get请求
+```
+//客户端
+<script type="text/javascript">
+    var localHandler = function(data){
+        alert("跨域")
+    }
+</script>
+<script type="text/javascript" src="http://remoteserver.com/remote.js">
+</script>
+
+//remote.js代码
+localHandler({
+    "result": "我是参数传输数据"
+})
+```
+
 2. CROS: 服务器设置HTTP响应头中Access-Control-Allow-Origin值，请求端设置origin值，如果前者包含后者，表示可以访问（acess-control-allow-origin: *;表示任何请求都接受）
 解决跨域限制，目标服务器需要知道哪些地址的请求是可以响应的（说白了就是一种约定）
 [参考连接：]{https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS}

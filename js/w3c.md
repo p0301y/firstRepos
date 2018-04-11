@@ -121,7 +121,16 @@ instanceof\typeof替换
      var b = require("b"),然后再去调用b的方法
      - 其他：循环依赖不会出现在ES6的import中，因为ES6中执行到import的时候并不会去执行import代码
      ，只是返回一个引用，等到真正用到的时候才会去执行
-
+5. 大佬对前端工程化的一些理解
+- 前端开发应该是“自成体系”的，包括运维部署、日志监控等
+- 针对不同的场景有不同的解决方案，并不是一套大而全的框架体系。比如针对以产品宣传展示为主的网页（site）,采用多页模式和响应式设计开发；
+以用户交互为主的且无强烈SEO要求的应用（Application）,采用单页面模式开发
+- 产品组件化，为提高复用性尽量将组件的颗粒度分细一些，且低耦合高内聚
+- 避免重复造轮子，引入一些优秀的开源资源，取长补短
+6. 前端工程化体系的三大模块
+- Node服务层：主要做数据的代理和Mock，url的路由分发，还有模版渲染
+- web应用开发层：主要专注web交互体验
+- 前端运维层：构建部署、日志监控
 ## 说说移动端与pc端的区别
 - 移动端的网络考虑，3G4G而且没有pc端稳定，这就考虑到加载问题，懒加载和按需加载
 - 移动端的分辨率各不先同，所以考虑到的是响应式布局
@@ -255,6 +264,16 @@ function deepCopy(obj){
                 o = obj;break;
     }
     return o
+}
+//深拷贝函数二
+function deepCopy(obj){
+    if(!obj) return;
+    var newObj = obj instanceof Array ? [] : {};
+    for(var prop in obj){
+        newObj[prop] = typeof obj[prop] === "object" ? deepCopy(obj[prop]) : obj[prop];
+    }
+
+    return newObj
 }
 ```
 ## float与position:absolute的区别

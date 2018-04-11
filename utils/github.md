@@ -53,6 +53,52 @@ git branch --set-upstream branch-name origin/branchname
 * 没有冲突或冲突已经解决，git puash origin branchname
 
 参考连接： [https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000]()
+## git常用命令
+1. 将远程仓库的文件clone到本地：
+```
+git clone url(https)
+```
+2. 本地文件连接到远程仓库
+```
+cd folder
+git init
+git add .
+git commit -m "备注信息" -a
+//远程建立仓库，复制url
+git remote add origin url
+git push -u origin master
+```
+3.撤销操作
+```
+git add 后撤销
+撤销所有的add文件： git reset HEAD .
+撤销单个add文件: git reset HEAD -filename
+
+git commit 后撤销
+只回退commit的信息，保留修改代码: git reset --soft head
+彻底回退到上次commit的版本，不保留修改代码git reset --hard head^
+head : 当前版本
+head^: 上一个版本
+--hard 会抛弃当前工作区的修改
+--soft 会回退到之前的版本，但是保留当前工作区的修改，可以重新提交
+
+撤销所有本地改动代码
+git checkout.
+
+本地代码回退到与远程仓库保持一致
+git reset --hard
+
+git push撤销
+回滚此次push到服务器的代码
+git log查看commit的信息
+git revert 以前commit的id
+git push此时本地回滚的代码到服务器就可以了
+
+git merge 撤销
+git checkout
+git reset --hard
+```
+
 
 ### vim编辑器
 vim -R file 查看文件只读
@@ -64,3 +110,4 @@ esc 常用的命令
 :wq 保存并退出
 
 :q!  强制退出
+
