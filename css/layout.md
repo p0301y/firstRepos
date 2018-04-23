@@ -168,3 +168,37 @@
     margin: auto;
 }
 ```
+
+## css3中的长和宽的单位(视口单位)
+1. vw: 1vw等于视口宽度的1%
+2. vh: 1vh等于视口高度的1%
+3. vmin: 选取vw和vh中最小的那个
+4. vmax: 选取vw和vh中最大的那个
+注意：视口单位区别于%单位，视口单位是依赖于视口的尺寸，根据视口尺寸的百分比来定义；而%单位则是依赖于元素的祖先元素
+一般用法：仅使用vw作为css单位
+优化用法：搭配vw和rem
+```
+//优化用法
+// rem 单位换算：定为 75px 只是方便运算，750px-75px、640-64px、1080px-108px，如此类推
+$vm_fontsize: 75; // iPhone 6尺寸的根元素大小基准值
+@function rem($px) {
+     @return ($px / $vm_fontsize ) * 1rem;
+}
+// 根元素大小使用 vw 单位
+$vm_design: 750;
+html {
+    font-size: ($vm_fontsize / ($vm_design / 2)) * 100vw;
+    // 同时，通过Media Queries 限制根元素最大最小值
+    @media screen and (max-width: 320px) {
+        font-size: 64px;
+    }
+    @media screen and (min-width: 540px) {
+        font-size: 108px;
+    }
+}
+// body 也增加最大最小宽度限制，避免默认100%宽度的 block 元素跟随 body 而过大过小
+body {
+    max-width: 540px;
+    min-width: 320px;
+}
+```

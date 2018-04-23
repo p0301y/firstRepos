@@ -754,3 +754,19 @@ function toggle(){
 }
 ```
 
+## ajax请求状态及意义
+在javascript里面写ajax的时，最关键的一步是对XMLHttpRequest对象建立监听，即使用“onreadystatechange”方法，
+监听的时候，要对XMLHttpRequest对象的请求状态进行判断，通常是判断readyState的值为4且http返回状态status的值
+为200或者304时执行我们需要的操作
+readyState属性表示ajax请求的当前状态
+```
+0 代表未初始化。 还没有调用Open方法
+1 代表正在加载。open方法已被调用，但森达方法还没有被调用
+2 代表已加载完毕。send已被调用。请求已经开始
+4 代表交互中。 服务器正在发送响应
+5 代表完成。响应发送完毕
+```
+
+## promise的理解以及手动实现
+```
+```

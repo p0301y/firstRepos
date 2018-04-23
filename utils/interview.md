@@ -89,3 +89,43 @@ arr.push(arr.shift())
 console.log(arr)
 VM1847:3 (6) [11, 12, 13, 14, 15, 10]
 ```
+14. cookie的设置
+cookie的参数：name 名称，key
+value cookie的值
+expire 过期时间，时间戳格式
+path 服务器端有效路径，/表示整个域名有效，默认为当前设置cookie是页面的路径
+domain 设置cookie有效的域名
+secure 规定是否通过安全的https连接来传输cookie
+```
+//cookie操作
+(function(){
+    var cookieObj = {
+        "add": function(name,value,hours){//修改或者添加cookie
+            var expire = ""
+            if(hours != null){
+                expire = new Date((new Date()).getTime() + hours*3600000)
+                expire = "; expires=" + expire.toGMTString()
+            }
+            document.cookie = name + "=" + escape(value) + expire + ";path=/"
+            //如果指定域名可以使用如下
+            //document.cookie = name + "=" + escape(value) + expire + ";path=/;domian = f"
+        },
+        "get": function(c_name){//读取cookie
+            if(document.cookie.length > 0){
+                c_start = document.cookie.indexOf(c_name + "=")
+                if(c_start != -1){
+                    c_start = c_start + c_name.length+1
+                    c_end = document.cookie.indexOf(";",c_start)
+                    if(c_end == -1){
+                        c_end = document.cookie.length
+                    }
+                    return unescape(document.cookie.substring(c_start,c_end))
+                }
+            }
+            return ""
+        }
+    }
+
+    window.cookieObj = cookieObj
+})()
+```
