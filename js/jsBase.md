@@ -769,4 +769,165 @@ readyState属性表示ajax请求的当前状态
 
 ## promise的理解以及手动实现
 ```
+待补充
+```
+
+## “||”与“&&”运算
+1. "||"运算
+只要"||"前面为false，不管后面是true还是false，都返回"||"后面的值
+只要"||"前面为true，不管后面是true还是false，都返回"||"前面的值
+2. "&&"运算
+只要"&&"前面的值为false，不管后面是true还是false，都返回"&&"前面的值
+只要"&&"前面的值为true，不管后面是true还是false，都返回"&&"后面的值
+
+## 表单验证函数（策略模式）
+具体的实现代码：
+```
+//表单验证
+var validate = (function (arr) {
+    //验证方法
+    var ruleData = {
+        /**
+         * @description 不能为空
+         * @param val
+         * @param msg
+         */
+        isNoNull(val,msg){
+            if(!val){
+                return msg;
+            }
+        },
+        /**
+         * @description 最小长度
+         * @param val
+         * @param length
+         * @param msg
+         */
+        minLength(val,length,msg){
+            if(val.toString().length < length){
+                return msg;
+            }
+        },
+        /**
+         * @description 最大长度
+         * @param val
+         * @param length
+         * @param msg
+         */
+        maxLength(val,length,msg){
+            if(val.toString().length > length){
+                return msg;
+            }
+        },
+        /**
+         * @description 是否是手机号码格式
+         * @param val
+         * @param msg
+         */
+        isMobile(val,msg){
+            if(!/^1[3-9]\d{9}$/.test(val)){
+                return msg;
+            }
+        },
+        /**
+         * @description 是否全部是数字
+         * @param val
+         * @param msg
+         */
+        isNm(val,msg){
+            if(!/^\d+$/.test(val)){
+                return msg;
+            }
+        }
+    }
+
+    return {
+        /**
+         * @description 添加规则接口
+         * @param type
+         * @param fn
+         */
+        addRule: function (type,fn) {
+            ruleData[type] = fn;
+        },
+        /**
+         * @description 单个校验，第一个不符合校验就会抛出
+         * @param arr
+         */
+        check: function (arr) {
+            var ruleMsg,checkRule,_rule;
+            for(var i=0,len1=arr.length;i<len1;i++){
+                var item = arr[i],data = item.data,rules = item.rules;
+                //如果字段找不到
+                if (data === undefined){
+                    return "字段找不到";
+                }
+                //遍历规则
+                for(j=0,len2=rules.length;j<len2;j++){
+                    var rule = rules[j].rule,msg = rules[j].msg;
+                    //提取规则
+                    checkRule = rule.split(":");//checkRule是检验函数的参数数组
+                    _rule = checkRule.shift();
+                    checkRule.unshift(data);
+                    checkRule.shift(msg);
+                    //如果规则有错误则返回错误
+                    ruleMsg = ruleData[_rule].applay(null,checkRule);
+                    if(ruleMsg){
+                        return ruleMsg;
+                    }
+                }
+            }
+        },
+        /**
+         * @description 全部校验，所有校验完成了，统一返回信息列表
+         * @param arr
+         */
+        checkAll: function (arr) {
+            var ruleMsg,checkRule,_rule,msgArr=[];
+            for(var i=0,len1=arr.length;i<len1;i++){
+                var item = arr[i],data = item.data,rules = item.rules,alias = item.alias;
+                //如果字段找不到
+                if (data === undefined){
+                    return "字段找不到";
+                }
+                //遍历规则
+                for(j=0,len2=rules.length;j<len2;j++){
+                    var rule = rules[j].rule,msg = rules[j].msg;
+                    //提取规则
+                    checkRule = rule.split(":");//checkRule是检验函数的参数数组
+                    _rule = checkRule.shift();
+                    checkRule.unshift(data);
+                    checkRule.shift(msg);
+                    //如果规则有错误则返回错误
+                    ruleMsg = ruleData[_rule].applay(null,checkRule);
+                    if(ruleMsg){
+                        //记录错误信息
+                        msgArr.push({
+                            data: data,
+                            alias: alias,
+                            rules: _rule,
+                            msg: ruleMsg
+                        })
+                    }
+                }
+            }
+            //返回错误信息数组
+            return msgArr.length > 0 ? msgArr : false;
+        }
+    }
+})()
+
+//test测试，在使用的时候，将需要检验的数据转化成如下的格式
+validate.checkAll([
+    {
+        //校验数据
+        data: 124444444,
+        alias: 'mobile',
+        //校验规则
+        rules:[
+            {rule: 'isNoNull',msg:"电话不能为空！"},
+            {rule: 'isMobile',msg: '电话号码不合法，必须为11位数字！'}
+        ]
+    }
+])
 ```
