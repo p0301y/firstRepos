@@ -98,7 +98,22 @@ git merge 撤销
 git checkout
 git reset --hard
 ```
-
+4. git忽略而不提交文件的3种情况
+- 从未提交过的文件可以使用.gitignore
+```
+//在.gitignore文件中添加忽略的文件夹或者文件，例如:log/文件夹
+log/*
+```
+- 已经推送（push）过的文件，想从git远程仓库中删除，并在以后的提交中忽略，但是本地还是保留这个文件
+```
+git rm --cached Xml/config.xml
+```
+- 已经推送(push)过的文件，想在以后提交的时候忽略此文件，即使本地已经修改过，不删除远程仓库中对应的文件
+```
+git update-index --assume-unchanged Xml/config.xml
+//如果要忽略一个目录
+git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
+```
 
 ### vim编辑器
 vim -R file 查看文件只读
