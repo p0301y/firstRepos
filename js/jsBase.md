@@ -698,6 +698,22 @@ if(!Function.prototype.bind){
         return fBound
     }
 }
+
+
+//第二种写法
+if(!Function.prototype.bind){
+    Function.prototype.bind = function(){
+        if(typeof this !== 'function'){
+            throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable')
+        }
+        var _this = this;
+        var obj = arguments[0];
+        var args = Array.prototype.slice.call(arguments,1);
+        return function(){
+            _this.apply(obj,ags)
+        }
+    }
+}
 ```
 
 ## 如何判断浏览器的种类
@@ -931,3 +947,27 @@ validate.checkAll([
     }
 ])
 ```
+
+## Array与string混淆的处理方法
+1. slice（数组）: 该方法是对数组进行部分截取，并返回一个副本；参数start是截取的开始数组索引，end是末尾索引
+ 用法：array.slice(start,end)
+ slice(字符串): 与数组的用法一样
+2. splice(数组): 从array中移除一个或多个数组，并用新的item替代它们。参数start是从数组array中移除元素的开始位置，参数deleteCount是要移除的元素的个数
+ 用法：array.splice(start,deleteCount,item...)
+3. split(字符串)：将字符串改成字符串数组。参数limit可以限制被分割的片段数量。separator参数可以是一个字符串或者一个正则表达式
+ 用法：string.split(separator,limit)
+
+## 数组中常用的方法（改变原数组和不改变原数组的方法）
+1. 改变原数组的方法
+shift: 将第一个元素删除并返回删除元素，空即为undefined
+unshift: 向数组开头添加元素，并返回新的长度
+pop: 删除最后一个并返回删除的元素
+push: 向数组末尾添加元素，并返回新的长度
+reverse: 颠倒数组顺序
+sort: 对数组排序
+splice: splice(start,length,item): 删，增，替换数组元素，返回被删除数组，无删除则不返回
+2. 不改变原数组的方法，即返回新的数组
+concat: 连接多个数组，返回新的数组
+join: 将数组中所有元素以参数作为分隔符放入一个字符
+slice: slice(start,end): 返回选定元素
+map,filter,forEach,some,every: 等不改变原数组
