@@ -118,11 +118,61 @@ git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
 ### vim编辑器
 vim -R file 查看文件只读
 
-esc 常用的命令
+常用的命令
+esc键 退出编辑
+
+i 进入编辑模式
 
 :args 显示正在编辑的文件名称
 
 :wq 保存并退出
 
 :q!  强制退出
+
+
+
+### linux常用的命令
+mkdir filename 创建文件夹
+vi filename  创建文件，已经存在则直接打开
+touch filename 创建文件，已有直接打开
+cat filename 打印出文件内容
+rm -rf filename 删除文件以及文件夹
+
+### git客户端配置多个用户（多个git账号）
+1. 取消git config的全局配置
+```$xslt
+git config --global unset user.name "name"
+```
+2. 生成公钥和秘钥，放在不同的文件中
+```$xslt
+ssh-key -t rsa -f 'filename1' -C 'email1'
+ssh-key -t rsa -f 'filename2' -C 'email2'
+```
+3. 设置代理
+```$xslt
+ssh-agent bash
+ssh-add ~/.ssh/filename1
+ssh-add ~/.ssh/filename2
+```
+4. 将公钥复制到远程settings中
+5. 在.ssh文件夹下配置文件
+```
+touch config
+vi config
+具体的编辑内容如下：
+#default gitlab user(pengyu1@corp.netease.com)
+Host git@g.hz.netease.com
+HostName g.hz.netease.com
+User pengyu1
+IdentityFile ~/.ssh/id_rsa
+Port 22222
+
+#default github user(2389726648@qq.com)
+Host git@github.com
+HostName ssh.github.com
+User p0301y
+IdentityFile ~/.ssh/id_rsa_new
+Port 443
+```
+
 
