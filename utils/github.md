@@ -174,5 +174,10 @@ User p0301y
 IdentityFile ~/.ssh/id_rsa_new
 Port 443
 ```
+注意事项：在使用的时候需要在不同的项目中设置
+```$xslt
+git config user.name ''
+git config user.email ''
+```
 
 
