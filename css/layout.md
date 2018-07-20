@@ -202,3 +202,201 @@ body {
     min-width: 320px;
 }
 ```
+
+### 居中问题的解决方案
+
+- 水平居中
+```$xslt
+<div class=parent>
+    <child class="child">
+    </div>
+</div>
+```
+1.inline-block + text-align
+```$xslt
+.child{
+    display:inline-block;
+    }
+.parent{
+    text-align:center;
+}
+```
+2.table + margin
+```$xslt
+.child{
+    display:table;
+    margin: 0 auto;
+}
+```
+3.absolute + transform
+```$xslt
+.parent{
+    position: relative
+}
+.child{
+    position: absolute;
+    left:50%;
+    transform: translateX(-50%)
+}
+```
+4.flex + justify-content
+```$xslt
+.parent{
+    display:flex;
+    justify-content:center;
+}
+or
+.parent{
+    display: flex;
+}
+.child{
+    margin: 0 auto
+}
+```
+
+- 垂直居中
+1. table-cell + vertical-align
+```$xslt
+.parent{
+    display: table-cell;
+    vertical-align:middle;
+}
+```
+2.absolute + transform
+```$xslt
+.parent{
+    position: relative;
+}
+.child{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+```
+3.flex + align-items
+```$xslt
+.parent{
+    display:flex;
+    align-items: center;
+}
+```
+
+### 多列布局
+- 一列定宽，一列自适应
+```$xslt
+div.parent
+    div.left
+    div.right
+```
+1.float + margin
+```$xslt
+.left{
+    float: left;
+    width: 100px;
+}
+.right{
+    margin-left:100px;
+}
+```
+2.float + overflow
+```
+.left{
+    float: left;
+    width:100px;
+}
+.right{
+    overflow:hidden;
+}
+```
+3.table
+```$xslt
+.parent{
+    display:table;
+    width:100%
+    table-layout:fixed;
+}
+.left,.right{
+    display:table-cell;
+}
+.left:{
+    width:100%;
+}
+```
+4.flex
+```$xslt
+.parent{
+    display:flex;
+}
+.left{
+    width:100px;
+}
+.right{
+    flex:1;
+}
+```
+
+- 不定宽度 + 自适应
+1.float + overflow
+```$xslt
+.left{
+    float:left;
+}
+.right{
+    overflow:hidden;
+}
+```
+2.table
+```$xslt
+.parent{
+    display:table;
+    width: 100%;
+}
+.left,.right{
+    display:table-cell;
+}
+.left{
+    width: 0.1%;
+}
+```
+3.flex
+```$xslt
+.parent:{
+    diplay:flex;
+}
+.right{
+    flex:1;
+}
+```
+
+- 等宽布局
+1.25%计算
+2.table + table-layout:fixed
+3.flex的分配因子
+
+- 左右等高布局（现实中经常需要的）
+1.table
+```$xslt
+.parent{
+    display:table;
+    width:100px;
+    table-layout: fixed;
+}
+.left,.right{
+    display:table-cell;
+}
+.left{
+    width:100px;
+}
+```
+2.flex
+```$xslt
+.parent{
+    display:flex;
+}
+.left{
+    width:100px;
+}
+.right{
+    flex:1;
+}
+```
