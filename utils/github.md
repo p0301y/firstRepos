@@ -180,8 +180,8 @@ git config --global unset user.name "name"
 ```
 2. 生成公钥和秘钥，放在不同的文件中
 ```$xslt
-ssh-key -t rsa -f 'filename1' -C 'email1'
-ssh-key -t rsa -f 'filename2' -C 'email2'
+ssh-keygen -t rsa -f 'filename1' -C 'email1'
+ssh-keygen -t rsa -f 'filename2' -C 'email2'
 ```
 3. 设置代理
 ```$xslt
