@@ -172,6 +172,13 @@ vi filename  创建文件，已经存在则直接打开
 touch filename 创建文件，已有直接打开
 cat filename 打印出文件内容
 rm -rf filename 删除文件以及文件夹
+rar x rarname 解压文件
+
+### git远程连接服务器进行操作
+- 连接命令ssh:
+ssh 用户名@地址  ssh root@12.121.121.21
+- 文件操作scp:
+scp用来将服务器端的文件拷贝到本地，或者将本地文件拷贝到远程服务器
 
 ### git客户端配置多个用户（多个git账号）
 1. 取消git config的全局配置
