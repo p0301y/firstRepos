@@ -971,3 +971,34 @@ concat: 连接多个数组，返回新的数组
 join: 将数组中所有元素以参数作为分隔符放入一个字符
 slice: slice(start,end): 返回选定元素
 map,filter,forEach,some,every: 等不改变原数组
+
+
+## js中间件的主框架实现
+```$xslt
+let mws = []
+let spa = {
+    add: function (mw) {
+        if (typeof mw === 'function'){
+            mws.push(mw)
+        } 
+    },
+    dispatch: function (context) {
+        let index = 0
+        let next = function(){
+            let mv = mws[index]
+            index++
+            if(mw){
+                return mw(context,next)
+            }
+        }
+        next()
+    }
+}
+function middleware(context,next) {
+    // ...
+    // do next middleware
+    next()
+}
+
+spa.add(middleware)
+```

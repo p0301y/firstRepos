@@ -27,6 +27,8 @@ git checkout -d dev  删除分支
 
 git branch 查看所有分支
 
+git branch -a 查看远程的所有分支
+
 git checkout master 切换到master分支
 
 git merge dev 合并dev分支
@@ -44,6 +46,10 @@ git stash pop  返回现场，等价于git stash apply + git stash drop
 git branch -D name  强行删除一个从未被合并的分支
 
 git tag v1.0  创建标签
+
+git对比两个分支的差异：master,dev
+查看dev有，而master中没有的：git log dev ^master
+查看master中有，而dev中没有的内容： git log master ^dev
 > 多人协作开发：每个人建立不同的分支
 * git push origin branchname  推送自己的修改
 * 如果推送失败，git pull 视图合并(如果显示no tracking information)
@@ -119,13 +125,42 @@ git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
 vim -R file 查看文件只读
 
 常用的命令
-esc键 退出编辑
-
-i 进入编辑模式
+esc键 退出编辑,进入命令模式
+命令模式下常用的命令
+h,j,k,l分别表示左、下、右、上
+行号gg/行号G 快速定位到行  G是到文档的末尾，gg是第一行，Ngg是第N行
+i 推出命令模式，进入编辑模式
+I 插入到行开始的地方
+a 进入编辑模式在光标的后面进行编辑
+A 插入到行的末尾
+dd 删除一行
+dw 删除一个单词
+Nyy 复制一行或者N行
+yw 复制一个单词
+y 复制
+d 删除
+p 粘贴
+v 选中一个或多个字符
+V 选中一行 
+/ 全局搜索
+? 往后搜索
+o 另起一行进行编辑
+u 撤销上一步的操作
+n 光标达到搜索的前一个
+N 光标达到搜索的后一个
+e 光标定位在一个单词的末尾
+b 光标定位在一单词开始
+^ 光标定位到一行的开始
+$ 光标定位到一行的末尾
+> 相当于一个tab的功能
 
 :args 显示正在编辑的文件名称
 
-:wq 保存并退出
+:w 保存
+
+:wq or :x 保存并退出
+
+:q 关闭（已经保存）
 
 :q!  强制退出
 
@@ -137,6 +172,13 @@ vi filename  创建文件，已经存在则直接打开
 touch filename 创建文件，已有直接打开
 cat filename 打印出文件内容
 rm -rf filename 删除文件以及文件夹
+rar x rarname 解压文件
+
+### git远程连接服务器进行操作
+- 连接命令ssh:
+ssh 用户名@地址  ssh root@12.121.121.21
+- 文件操作scp:
+scp用来将服务器端的文件拷贝到本地，或者将本地文件拷贝到远程服务器
 
 ### git客户端配置多个用户（多个git账号）
 1. 取消git config的全局配置
@@ -145,8 +187,8 @@ git config --global unset user.name "name"
 ```
 2. 生成公钥和秘钥，放在不同的文件中
 ```$xslt
-ssh-key -t rsa -f 'filename1' -C 'email1'
-ssh-key -t rsa -f 'filename2' -C 'email2'
+ssh-keygen -t rsa -f 'filename1' -C 'email1'
+ssh-keygen -t rsa -f 'filename2' -C 'email2'
 ```
 3. 设置代理
 ```$xslt
